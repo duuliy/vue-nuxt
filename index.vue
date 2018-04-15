@@ -1,0 +1,567 @@
+<template>
+    <section>
+        <mt-header fixed title="购物车" color="white">
+            <div class="iconri" slot="right" @click="toggleDelBtn">
+                <span v-show="!delFlag">编辑</span>
+                <span v-show="delFlag">完成</span>
+            </div>
+        </mt-header>
+        <div class='topEmpty'></div>
+        <!--空，没商品时-->
+        <div class="cartcont" v-if="listdo.length=='0'&&listinv.length=='0'">
+            <img src="~static/img/cart/cartbanner.png" alt="">
+            <h4>空空如也</h4>
+            <p>空空如也,去首页转转</p>
+            <nuxt-link to="/">
+                <div class="cartbtn">马上去</div>
+            </nuxt-link>
+        </div>
+        <!--有商品时-->
+        <div class="goods_list" v-else>
+            <!--交易-->
+            <div v-for="(item,index) in listdo" :key="index">
+                <Listofhead @clicked="shopchoose(item)" :imm="{'imm':item.check}" :cartva="item.title"
+                            >
+                </Listofhead>
+                <ul>
+                    <li v-for="(pro,inde) in item.list" :key="pro.cart_id">
+                        <Cl_good @delte="delte(pro.cart_id)">
+                        <Listofcart :imgsrco="{'imgsr': pro.checked}" @selectGoods="choose(item,pro)"
+                                    :imgsrc="pro.img" :liname="pro.goods_name"
+                                    :iphone="pro.describe" :num="pro.goods_price" :quantity="pro.num">
+                        </Listofcart>
+                        </Cl_good>
+                    </li>
+                </ul>
+            </div>
+            <!--失效商品-->
+            <div class="minelist f2" v-if="listinv.length!='0'">
+                <p>失效商品</p>
+                <img src="~static/img/mine/delete@2x.png" alt="">
+                <span @click="nullALLinv">删除</span>
+            </div>
+            <div v-for="(item,index) in listinv" :key="index">
+            <Invofhead  :cartva="item.title"
+            >
+            </Invofhead>
+            <ul>
+                <li v-for="(pro,inde) in item.list" :key="inde">
+                    <Cl_good @delte="delte(pro.cart_id)">
+                        <Invofcart
+                                    :imgsrc="pro.img" :liname="pro.goods_name"
+                                    :iphone="pro.describe" :num="pro.goods_price" :quantity="pro.num">
+                        </Invofcart>
+                    </Cl_good>
+                </li>
+            </ul>
+            </div>
+        </div>
+
+        <div class='topEmptyt'></div>
+        <div class="minelist bot">
+            <div id="imq" :class="{'iim': status}" @click="cartchoose()">
+            </div>
+            <p>全选 </p>
+            <div class="total" v-show="!delFlag">合计:<p>¥<b>{{allsum}}</b></p></div>
+            <span v-show="!delFlag" @click="buyGoods">去结算({{ allnum}})</span>
+            <span v-show="delFlag" @click="delGoods">删除({{ allnum}})</span>
+        </div>
+        <MyFooter curTab='3'/>
+    </section>
+</template>
+
+<script type="text/javascript">
+    import axios from '~/plugins/axios'
+    import Listofcart from '~/components/cart/Listof_cart'
+    import Listofhead from '~/components/cart/Listofhead_cart'
+    import Invofcart from '~/components/cart/Invof_cart'
+    import Invofhead from '~/components/cart/Invof_head'
+    import MyFooter from '~/components/Footer.vue'
+    import Cl_good from '~/components/common/Cl_good'
+    import { MessageBox } from 'mint-ui'
+    let Getaxios;
+    if(process.browser){
+        let http = require('~/plugins/http');
+        Getaxios = http.default;
+    }
+
+    export default{
+        data(){
+            return {
+                valuet: "",
+                delFlag: false,
+                status: false,
+//                checked:"", 单选
+//                check:"", 小全选
+                allchoose: 0,//店铺选中个数
+                allsum: 0,//总价格
+                allnum: 0,//总数量
+                lisT:[],//删除结算数组
+                compter:"",//更新页面数据
+                listdo:[],//doing
+                listinv:[],//invs
+                cartAone:[],//类别1,2,...
+                cartBone:[],
+                cartCone:[],
+            }
+        },
+        created(){
+        },
+        mounted(){
+            let that=this;
+            this.compter=function () {
+
+
+            Getaxios.getData('post', 'cartlist',{
+            }).then( res =>{
+//                    console.log(res.code);
+//                console.log(res.data.doing[0].list[0]);
+                if(res.code=="2000"){
+                    function meradd(tall) {
+                        tall.forEach(item => {
+                            item.checked = false;
+                        })
+                    }
+
+                    for (let x in res.data.doing) {
+                        res.data.doing[x].check = false;
+                        res.data.doing[x].choose = 0
+                    }
+
+                    res.data.doing.forEach(item =>{
+                        meradd(item.list)
+                    });
+
+                    that.listdo=res.data.doing;
+                    that.listinv=res.data.invalid;
+                    that.cartAone= res.data.doing[0].list;
+                    that.cartBone= res.data.doing[1].list;
+                    that.cartCone= res.data.doing[2].list
+                }
+            })
+            };
+
+            this.compter();
+        },
+//        async asyncData () {
+//            let {data} = await axios.post('/api/cart')
+////            console.log("123")
+////            console.log(data.doing)
+//
+//            function meradd(tall) {
+//                tall.forEach(item => {
+//                    item.checked = false;
+//                })
+//            };
+//
+//            for (let x in data.doing) {
+//                data.doing[x].check = false;
+//                data.doing[x].choose = 0
+//            }
+//
+//            meradd(data.doing[0].products);
+//            meradd(data.doing[1].products);
+//            return {
+//                  list: data.doing,
+//                  listinv:data.invalid,
+//                  cartAone: data.doing[0].products,
+//                  cartBone: data.doing[1].products,
+//
+//            }
+//        },
+        components: {
+            axios,
+            Listofcart,
+            MyFooter,
+            Listofhead,
+            Cl_good,
+            Invofcart,
+            Invofhead
+        },
+        filters: {
+            currency: function (value) {
+                return value + ":"
+            }
+        },
+        methods: {
+            Serliline(item){
+                //this.$router.push({path: '/serverdetails', query: {id:item.id}});
+            },
+            delte(item){
+                let that=this;
+                MessageBox.confirm('确定执行此操作?').then(action => {
+                    console.log(item);
+//                    this.Collectionr.splice(index,1);
+                        Getaxios.getData('post', 'delcart',{cart_id:item})
+                    window.location.reload()
+//                    that.compter();
+                }).catch((error) => {});
+            },
+            /*切换删除按钮*/
+            toggleDelBtn: function () {
+                this.delFlag = !this.delFlag;
+            },
+
+//          单选true
+            choosetrue(item, pro){
+                // debugger
+                pro.checked = true
+                ++item.choose === item.list.length ? item.check = true : ''
+                item.check ? ++this.allchoose === this.listdo.length ? this.status = true : this.status = false : ''
+                let ssum=(pro.goods_price*100/100)
+                this.allsum += ssum
+                this.allsum = Number((this.allsum).toFixed(2))
+                this.allnum += parseInt(pro.num)
+            },
+//          单选false
+            choosefalse(item, pro){
+                //  debugger
+                pro.checked = false
+                --item.choose
+                if (item.check) {
+                    item.check = false
+                    --this.allchoose
+                }
+                this.status = false
+                this.allsum -= pro.goods_price
+                this.allnum -= pro.num
+                this.allsum = Number((this.allsum).toFixed(2))
+            },
+//           单选
+            choose(item, pro){
+                //  debugger
+                !pro.checked ? this.choosetrue(item, pro) : this.choosefalse(item, pro)
+
+            },
+//          小全选 true
+            shoptrue(item){
+                // debugger
+                item.list.forEach((pro) => {
+                    pro.checked === false ? this.choosetrue(item, pro) : ''
+                })
+            },
+//          小全选 false
+            shopfalse(item){
+                // debugger
+                item.list.forEach((pro) => {
+                    pro.checked === true ? this.choosefalse(item, pro) : ''
+                })
+            },
+//          小全选
+            shopchoose(item){
+//                 debugger
+                !item.check ? this.shoptrue(item) : this.shopfalse(item)
+            },
+//          全选
+            cartchoose(){
+                // debugger
+                this.status = !this.status
+                this.status ? this.listdo.forEach((item) => this.shoptrue(item)) : this.listdo.forEach((item) => this.shopfalse(item))
+            },
+//          相加
+            add(pro){
+                // debugger
+                pro.num++
+                pro.checked ? this.allnum++ : ''
+                //sum转
+                let pri=pro.goods_price*100
+                let ssum=pro.goods_price*100
+                ssum+= pri
+                ssum=ssum/100
+                pro.goods_price=ssum
+                //allsum转
+                let allssum=this.allsum*100
+                allssum+=pri
+                allssum=Number((allssum/100).toFixed(2))
+                pro.checked?this.allsum=allssum:this.allsum
+            },
+//          减少
+            reduce(pro){
+                // debugger
+                if (pro.num <= 1) {
+                    pro.num=1
+                } else {
+                    pro.num--
+                    pro.checked ? this.allnum-- : ''
+                    pro.goods_price -= pro.goods_price
+                    //allsum转
+                    let pri=pro.goods_price*100
+                    let allssum=this.allsum*100
+                    allssum-=pri
+                    allssum=Number((allssum/100).toFixed(2))
+                    pro.checked?this.allsum=allssum:this.allsum 
+                }
+            },
+//          总价计算
+            calculate(pro){
+                //  debugger
+                // let ssum=(pro.sum*100/100)
+                // let oldsum = ssum//之前的总价
+                // let oldnum = oldsum / pro.price//之前的数量
+                // pro.num = pro.num//现在的数量
+                // pro.num > 0 ? pro.sum = pro.num * pro.price : pro.num = oldnum//如果输入数量大于0，计算价格，否则返回之前的数量
+                // let diffsum = pro.sum - oldsum//差价
+                // let diffnum = pro.num - oldnum//差量
+                // if (pro.checked) {//如果商品被选中
+                //     this.allsum += diffsum//计算总价
+                //     this.allnum += diffnum//计算总量
+                // }
+            },
+            GlisT(){
+                let that=this;
+                this.listdo.forEach(item =>{
+                    item.list.forEach(pro => {
+                        if(pro.checked){
+                            that.lisT.push(pro.cart_id)
+                        }
+                    })
+                });
+            },
+            /* 买商品*/
+            buyGoods(){
+                this.GlisT()
+                let lisT_buy={};
+                this.lisT.map((i,e) =>{
+                    lisT_buy[i]=0;
+                })
+
+//                console.log(Object.prototype.toString.call(lisT_buy) === '[object String]')
+                Getaxios.getData('post', 'cartorder',{ids:lisT_buy,kind:2})
+                    .then(res=>{
+                        if(res.code=="2000"){
+                            console.log(res.data.data);//订单编号
+                            console.log(res.data.wd_data);//订单编号
+                            this.$router.push({path: '/cart/Placeorder',query: {data:res.data.data,wd_data:res.data.wd_data}});
+                        }
+                    })
+
+            },
+            /* 删除商品*/
+            delGoods(){
+//                debugger
+                this.GlisT()
+                Getaxios.getData('post', 'delcart',{cart_id:this.lisT})
+                window.location.reload()
+//                console.log(this.lisT)
+
+//                // 重置 被选商品数量、全选状态、删除状态
+//                this.selectedNum = 0;
+//                this.checkAllFlag = false;
+//                this.delFlag = !this.delFlag;
+            },
+            nullALLinv(){
+
+            }
+        },
+        computed: {
+            /*总价*/
+//            totalPrice: function () {
+//            //    debugger
+//                let  numS = 0;
+//                this.cartall.forEach(function (item) {
+//                    item.checked && (numS += parseFloat(item.subtotal));
+//                });
+//                return numS;
+//            }
+        },
+        head () {
+            return {
+                title: '购物车'
+            }
+        }
+    }
+
+</script>
+
+<style type="text/css" scoped lang="less">
+    .mint-header {
+        height: 45.8px;
+        color: #333333;
+        font-size: 18.1px;
+        background-color: white;
+    }
+
+    .iconri {
+        font-size: 10.4px;
+        color: #999999;
+    }
+
+    .topEmpty {
+        content: '';
+        display: block;
+        height: 35px;
+        overflow: hidden;
+    }
+    .topEmptyt{
+        content: '';
+        display: block;
+        height: 60px;
+        overflow: hidden;
+    }
+
+    .cartcont {
+        text-align: center;
+        margin-top: 3.34rem;
+
+        img {
+            width: 4.26rem;
+            height: 3.83rem;
+        }
+        h4 {
+            margin-top: .48rem;
+            color: #333333;
+        }
+        p {
+            margin: .2rem 0 .5rem 0;
+            font-size: 12.5px;
+            color: #999999;
+        }
+    }
+
+    .cartcont > h4 {
+        font-size: 16.7px !important;
+        font-weight: 500;
+    }
+
+    .cartbtn {
+        color: #eb0c1c;
+        width: 127.8px;
+        height: 30.56px;
+        border: 1px solid #eb0c1c;
+        border-radius: 3px;
+        text-align: center;
+        line-height: 30.56px;
+        margin: 0 auto;
+    }
+
+    /*商品列表*/
+    .minelist {
+        margin-top: 10.4px;
+        width: 100%;
+        height: 41.7px;
+        position: relative;
+        border-top: 1px solid #f6f6f6;
+        border-bottom: 1px solid #f6f6f6;
+        background-color: white;
+        img {
+            position: absolute;
+            width: 14.6px;
+            height: 14.6px;
+            border-radius: 1.3px;
+            border: solid 1px #dadada;
+            top: 12px;
+        }
+        #imy {
+            position: absolute;
+            width: 14.6px;
+            height: 14.6px;
+            border-radius: 5px;
+            border: solid 1px #dadada;
+            left: 13.9px;
+            top: 12px;
+        }
+        .imm {
+            position: absolute;
+            width: 14.6px;
+            height: 14.6px;
+            background: url("~static/img/cart/Select_rectangular_fill@2x.png") no-repeat;
+            background-size: 100%;
+            left: 13.9px;
+            top: 12px;
+        }
+        p {
+            position: absolute;
+            left: 35px;
+            line-height: 41.7px;
+            font-size: 14.6px;
+            display: inline-block;
+            color: #333333;
+        }
+        span {
+            display: inline-block;
+            position: absolute;
+            color: #eb0c1c;
+            right: 13.9px;
+            font-size: 12.5px;
+            top: 50%;
+            margin-top: -10.2px;
+        }
+    }
+
+    .f1 {
+        margin-top: 0;
+    }
+
+    .bot {
+        z-index: 999;
+        position: fixed;
+        bottom: 1.65rem;
+        height: 49px;
+        #imq {
+            margin-top: 5px;
+            position: absolute;
+            width: 14.6px;
+            height: 14.6px;
+            border-radius: 14.6px;
+            border: solid 1px #dadada;
+            left: 13.9px;
+            top: 12px;
+        }
+        .iim {
+            position: absolute;
+            width: 16.6px;
+            height: 16.6px;
+            background: url("~static/img/cart/Select_circul_fill@2x.png") no-repeat;
+            background-size: 100%;
+            left: 13.9px;
+            top: 12px;
+        }
+        > p {
+            margin-top: 5px;
+        }
+        > span {
+            position: absolute;
+            top: 11px;
+            right: 0;
+            text-align: center;
+            line-height: 49px;
+            width: 108px;
+            height: 49px;
+            background-color: #ff2434;
+            color: white;
+        }
+    }
+
+    .total {
+        position: absolute;
+        top: 15px;
+        right: 200px;
+        p {
+            display: inline-block;
+            margin: -11px 0 0 0px;
+        }
+    }
+    /*失效商品*/
+    .f2{
+        background-color: #f6f6f6;
+        margin-top: 0;
+        height: 31.3px;
+        img{
+            border: none;
+            right: 40px;
+            width: 8.7px;
+            height:8.7px;
+            margin-top: 3.1px;
+        }
+        span{
+            display: inline-block;
+            position: absolute;
+            top: 50%;
+            margin-top: -3.9px;
+            right: 13.9px;
+            color: #999999;
+            font-size: 10.4px;
+        }
+    }
+
+</style>
