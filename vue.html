@@ -60,7 +60,7 @@
           },
           set: function (newVal) {
             console.log(`${key}更新${newVal}`);
-            if (value !== newVal) {
+            if (value !== newVal)  {
               value = newVal;
               binding._directives.forEach(function (item) {
                 item.update();
