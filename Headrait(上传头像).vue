@@ -40,7 +40,7 @@
         created() {
 
         },
-            beforeRouteEnter(to, from, next){
+            beforeRouteEnter(to, from,  next){
          next(vm=>{
               let that =this;
           Getaxios.getData('post', 'me')
