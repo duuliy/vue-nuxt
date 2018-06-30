@@ -1,3 +1,5 @@
+私密好东西，已实战项目测试，哈哈哈哈。
+
 # vue-multipage
 
 > A Vue.js project
