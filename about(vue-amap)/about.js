@@ -16,5 +16,5 @@ new Vue({
   el: '#app',
   template: '<about/>',
   components: { about }
-})
+} )
       
