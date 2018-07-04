@@ -1,5 +1,5 @@
-私密好东西，已实战项目测试，哈哈哈哈。
-
+私密好东西，已实战项目测
+多页面架构
 # vue-multipage
 
 > A Vue.js project
