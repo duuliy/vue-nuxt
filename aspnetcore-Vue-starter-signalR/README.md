@@ -1,5 +1,5 @@
 # Asp.NETCore 2.1 Vue 2 SignalR Starter
-（项目持续更新中）
+（项目持续更新中,待成熟发布npm）
 此项目  an aspnetcore + Vue.js 2 + SignalR Alpha starter template (VS2017). 参考此模板研究出来的： [aspnetcore-Vue-starter Template](https://github.com/MarkPieszak/aspnetcore-Vue-starter)
 
 _the original starter 参考原始模板? [click here](https://blogs.msdn.microsoft.com/webdev/2017/02/14/building-single-page-applications-on-asp-net-core-with-javascriptservices/)_
