@@ -1,13 +1,12 @@
 # Asp.NETCore 2.1 Vue 2 SignalR Starter
 
-This repo contains an aspnetcore + Vue.js 2 + SignalR Alpha starter template (VS2017). The template is based
-on the [aspnetcore-Vue-starter Template](https://github.com/MarkPieszak/aspnetcore-Vue-starter)
+This repo contains an aspnetcore + Vue.js 2 + SignalR Alpha starter template (VS2017). 参考此模板研究出来的： [aspnetcore-Vue-starter Template](https://github.com/MarkPieszak/aspnetcore-Vue-starter)
 
-_Looking for the original starter templates? [click here](https://blogs.msdn.microsoft.com/webdev/2017/02/14/building-single-page-applications-on-asp-net-core-with-javascriptservices/)_
+_the original starter 参考原始模板? [click here](https://blogs.msdn.microsoft.com/webdev/2017/02/14/building-single-page-applications-on-asp-net-core-with-javascriptservices/)_
 
-_Looking for aspnetcore & Angular 2.x+ Universal starter? [click here](https://github.com/MarkPieszak/aspnetcore-angular2-universal)_
+_aspnetcore & Angular 2.x+ Universal 参考地址? [click here](https://github.com/MarkPieszak/aspnetcore-angular2-universal)_
 
-_Looking for SignalR source code? [click here](https://github.com/aspnet/SignalR)_
+_SignalR 源码地址 ? [click here](https://github.com/aspnet/SignalR)_
  
 ---
 
@@ -58,23 +57,5 @@ Nothing's ever perfect, but please let me know by creating an issue (make sure t
 
 ----
 
-### Special Thanks
 
-Many thanks go out to Steve Sanderson (@SteveSandersonMS) from Microsoft and his amazing work on [JavaScriptServices](https://blogs.msdn.microsoft.com/webdev/2017/02/14/building-single-page-applications-on-asp-net-core-with-javascriptservices/) and integrating the world of Node with ASP.NET Core.
-
-[Mark Pieszak](https://github.com/MarkPieszak) for creating the original template that this was based on.
-
-[David Fowler](https://github.com/davidfowl) for SignalR and for reviewing and improving this starter template.
-
-# License
-
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](/LICENSE) 
-
-Copyright (c) 2016-2017 [Eric Malamisura](https://github.com/elucidsoft)
-
-### Follow me online:
-
-Twitter: [@emalamisura](http://twitter.com/emalamisura)
-
-----
 
