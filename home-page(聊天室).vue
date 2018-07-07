@@ -62,7 +62,7 @@
         <div class="line"></div>
 
         <div class="chartSend">
-           <textarea style='resize:none; border:none; width:1200px; height:120px; box-shadow: 5px 3px 5px #d6d6d6;'
+           <textarea type='text' style='resize:none; border:none; width:1200px; height:120px; box-shadow: 5px 3px 5px #d6d6d6;'
            maxlength='800' v-model='desc'  @input='descInput' @keyup.enter="sendMsg"
           ></textarea>
           <span>800/{{remnant}}</span>
@@ -110,24 +110,25 @@ export default {
       otherid: "",
       //聊天信息
       chatlist: [
-        {
-          timeId: new Date().valueOf(),
-          showtime: new Date().toLocaleTimeString(),
-          user_id: "c84f385f-ad9e-4a5a-9fef-7cd0bd5caa68",
-          user_cont: "这里左边聊天",
-          user_contT: "this is left chart"
-        },
-        {
-          timeId: new Date().valueOf() + 1,
-          showtime: new Date().toLocaleTimeString(),
-          user_id: "b7793c83-bca3-45c7-9269-7707fa139f4e",
-          user_cont: "这里右边聊天",
-          user_contT: "this is right chart"
-        }
+        // {
+        //   timeId: new Date().valueOf(),
+        //   showtime: new Date().toLocaleTimeString(),
+        //   user_id: "c84f385f-ad9e-4a5a-9fef-7cd0bd5caa68",
+        //   user_cont: "这里左边聊天",
+        //   user_contT: "this is left chart"
+        // },
+        // {
+        //   timeId: new Date().valueOf() + 1,
+        //   showtime: new Date().toLocaleTimeString(),
+        //   user_id: "b7793c83-bca3-45c7-9269-7707fa139f4e",
+        //   user_cont: "这里右边聊天",
+        //   user_contT: "this is right chart"
+        // }
       ],
       conputTime: () => new Date().toLocaleDateString(),
       //signalR
-      connection: null
+      connection: null,
+      sendstate:true
     };
   },
   components: {
@@ -244,8 +245,9 @@ export default {
     },
     addmyMsg(a, b, c) {
       let ss = {};
+      ss.user_id = a;
       ss.timeId = new Date().valueOf();
-      (ss.showtime = new Date().toLocaleTimeString()), (ss.user_id = a);
+      ss.showtime = new Date().toLocaleTimeString();
       ss.user_cont = b;
       ss.user_contT = c;
 
@@ -253,36 +255,45 @@ export default {
     },
     sendMsg() {
       let self = this;
-      if (this.desc) {
+      // console.log(typeof this.desc)
+      if (this.desc&&(this.sendstate===true)) {
         let dd = this.getSendMsg(this.desc);
         // console.log(dd);
 
-        let amM = this.addmyMsg(this.myid, this.desc, "");
-        // console.log(amM);
-        this.chatlist.push(amM);
-        this.desc = "";
+        // let amM = this.addmyMsg(this.myid, this.desc, "");
+        // this.chatlist.push(amM);
+
         this.connection.invoke("Send", dd).catch(function(err) {
           console.log("发送异常：" + err);
           //消息过期不管
         });
-        $('.chartcont').scrollTop(530)
-        console.log($('.chartcont')[0].scrollHeight);
-        console.log($('.chartcont')[0].scrollHeight+60)
+
+        $(".chartcont").scrollTop($(".chartcont")[0].scrollHeight);
+        // console.log($(".chartcont")[0].scrollHeight);
+        //  $(".chartcont").scrollTop(600);
+        self.sendstate=false;
       }
     },
     getMsg() {
       // 接收原文的信息
       let self = this;
       this.connection.on("ReceiveMsg", function(m) {
-        console.log("原文:");
-        console.log(m);
-        let amM = self.addmyMsg(this.otherid, m.toContent, "");
+        // console.log("原文:");
+        // console.log(m);
+        let amM = self.addmyMsg(self.otherid, m.fromContent, m.toContent);
         self.chatlist.push(amM);
       });
       // 接收翻译后的的信息
       this.connection.on("ReceiveTranslate", function(m) {
-        console.log("翻译后:");
-        console.log(m);
+        // console.log("翻译后:");
+        // console.log(m);
+        if (self.desc) {
+          let amM2 = self.addmyMsg(self.myid, self.desc, m.toContent);
+          self.chatlist.push(amM2);
+          self.desc = "";
+          self.remnant = "800";
+          self.sendstate=true;
+        }
       });
     }
   }
@@ -330,6 +341,7 @@ export default {
               }
               &:nth-of-type(1) {
                 display: inline-block;
+                font-weight: 700;
               }
               &:nth-of-type(2) {
                 font-size: 12px;
@@ -387,6 +399,7 @@ export default {
               }
               &:nth-of-type(1) {
                 display: inline-block;
+                font-weight: 700;
               }
               &:nth-of-type(2) {
                 font-size: 12px;
@@ -406,10 +419,34 @@ export default {
   box-shadow: 5px 3px 5px #d6d6d6;
   overflow-x: hidden;
   overflow-y: auto;
+   -webkit-overflow-scrolling: touch;
   .conputTime {
     text-align: center;
     color: rgb(214, 214, 214);
   }
+  //ie只能改颜色火狐不支持css
+  &::-ms-scrollbar {
+    width: 6px;
+    height: 20px;
+  }
+  &::-ms-scrollbar-button {
+    background-color: white;
+  }
+  &::-ms-scrollbar-button {
+    background-color: white;
+  }
+
+  &::-ms-scrollbar-track {
+    background: white;
+    height: 10px;
+  }
+  &::-ms-scrollbar-thumb {
+    width: 6px;
+    height: 20px;
+    background: rgba(197, 208, 223, 1);
+    border-radius: 3px;
+  }
+
   &::-webkit-scrollbar {
     width: 6px;
     height: 20px;
@@ -417,10 +454,36 @@ export default {
   &::-webkit-scrollbar-button {
     background-color: white;
   }
+  &::-webkit-scrollbar-button {
+    background-color: white;
+  }
+
   &::-webkit-scrollbar-track {
     background: white;
+    height: 10px;
   }
   &::-webkit-scrollbar-thumb {
+    width: 6px;
+    height: 20px;
+    background: rgba(197, 208, 223, 1);
+    border-radius: 3px;
+  }
+  &::-moz-scrollbar {
+    width: 6px;
+    height: 20px;
+  }
+  &::-moz-scrollbar-button {
+    background-color: white;
+  }
+  &::-moz-scrollbar-button {
+    background-color: white;
+  }
+
+  &::-moz-scrollbar-track {
+    background: white;
+    height: 10px;
+  }
+  &::-moz-scrollbar-thumb {
     width: 6px;
     height: 20px;
     background: rgba(197, 208, 223, 1);
