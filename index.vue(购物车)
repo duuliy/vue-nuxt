@@ -80,7 +80,7 @@
     import Cl_good from '~/components/common/Cl_good'
     import { MessageBox } from 'mint-ui'
     let Getaxios;
-    if(process.browser){
+    if(process.browser) {
         let http = require('~/plugins/http');
         Getaxios = http.default;
     }
