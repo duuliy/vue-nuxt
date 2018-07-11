@@ -83,7 +83,7 @@
         },
         head () {
             return {
-                title: '上传头像'
+                title : '上传头像'
             }
         }
     }
