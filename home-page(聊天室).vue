@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-      <Header data_name='duuliy'></Header>
+      <Header :data_name='my_name'></Header>
       <div class="chart_warp">
         <div class="chart">
 
@@ -11,10 +11,14 @@
               <div class="le_info">
                 <img :src="other_img" alt="">
                 <div class="le_info_ri" >
-                  <p>{{other_name}}</p>
+                  <p>
+                    {{other_name}} 
+                    <span v-if='my_lang=="中文"'>(对方)</span> 
+                    <span v-else>(Friend)</span> 
+                  </p>
                 <p>
                   {{other_state}} 
-                   <img :src="other_stateImg" alt="" v-if='other_state=="在线"'>
+                   <img :src="other_stateImg" alt="" v-if='other_state=="在线"||other_state=="On-line"'>
                    <img :src="other_stateImg2" alt="" v-else>
                 </p>
                 </div>
@@ -34,10 +38,14 @@
               <div class="ri_info">
                 <img :src="my_img" alt="">
                 <div class="ri_info_ri">
-                  <p>{{my_name}}</p>
+                  <p>
+                    <span v-if='my_lang=="中文"'>(自己)</span> 
+                    <span v-else>(Me)</span> 
+                  {{my_name}}
+                  </p>
                 <p>
                   {{my_state}} 
-                   <img :src="my_stateImg" alt="" v-if='my_state=="在线"'>
+                   <img :src="my_stateImg" alt="" v-if='my_state=="在线"||my_state=="On-line"'>
                    <img :src="my_stateImg2" alt="" v-else>
                 </p>
                 </div>
@@ -62,8 +70,8 @@
         <div class="line"></div>
 
         <div class="chartSend">
-           <textarea type='text' style='resize:none; border:none; width:1200px; height:120px; box-shadow: 5px 3px 5px #d6d6d6;'
-           maxlength='800' v-model='desc'  @input='descInput' @keyup.enter="sendMsg"
+           <textarea type='text' style='resize:none; border:none; height:60px;padding:2px 5px;'
+           maxlength='800' v-model='desc'  @input='descInput' @keyup.ctrl.enter="sendMsg"
           ></textarea>
           <span>800/{{remnant}}</span>
           <div class="btnSend" @click="sendMsg">
@@ -72,14 +80,15 @@
         </div>
         </div>
       </div>
-      <Footer></Footer>
+      <!-- <Footer></Footer> -->
   </div>
 </template>
 
 <script>
 import { setLgToken, getLgToken } from "../assets/js/auth";
+// import "../assets/js/rem";
 import Header from "./common/Header";
-import Footer from "./common/Footer";
+// import Footer from "./common/Footer";
 import Chartleft from "./Chartroom/Chartleft";
 import Chartright from "./Chartroom/Chartright";
 
@@ -128,12 +137,12 @@ export default {
       conputTime: () => new Date().toLocaleDateString(),
       //signalR
       connection: null,
-      sendstate:true
+      sendstate: true
     };
   },
   components: {
     Header,
-    Footer,
+    // Footer,
     Chartleft,
     Chartright
   },
@@ -157,6 +166,7 @@ export default {
           // console.log(that.myid)
           if (acct.data.lang == 10) {
             that.my_lang = "Engish";
+            that.my_state = "On-line";
           } else if (acct.data.lang == 0) {
             that.my_lang = "中文";
           }
@@ -190,9 +200,15 @@ export default {
         // console.log(users);
         users.map(item => {
           if (item.id == self.otherid) {
-            item.isOnline == true
-              ? (self.other_state = "在线")
-              : (self.other_state = "离线");
+            if (self.my_lang == "中文") {
+              item.isOnline == true
+                ? (self.other_state = "在线")
+                : (self.other_state = "离线");
+            } else {
+              item.isOnline == true
+                ? (self.other_state = "On-line")
+                : (self.other_state = "Off-line");
+            }
           }
         });
       });
@@ -202,9 +218,15 @@ export default {
         // console.log(users);
         users.map(item => {
           if (item.id == self.otherid) {
-            item.isOnline == true
-              ? (self.other_state = "在线")
-              : (self.other_state = "离线");
+            if (self.my_lang == "中文") {
+              item.isOnline == true
+                ? (self.other_state = "在线")
+                : (self.other_state = "离线");
+            } else {
+              item.isOnline == true
+                ? (self.other_state = "On-line")
+                : (self.other_state = "Off-line");
+            }
           }
         });
       });
@@ -214,9 +236,15 @@ export default {
         // console.log(users);
         users.map(item => {
           if (item.id == self.otherid) {
-            item.isOnline == true
-              ? (self.other_state = "在线")
-              : (self.other_state = "离线");
+            if (self.my_lang == "中文") {
+              item.isOnline == true
+                ? (self.other_state = "在线")
+                : (self.other_state = "离线");
+            } else {
+              item.isOnline == true
+                ? (self.other_state = "On-line")
+                : (self.other_state = "Off-line");
+            }
           }
         });
       });
@@ -256,7 +284,7 @@ export default {
     sendMsg() {
       let self = this;
       // console.log(typeof this.desc)
-      if (this.desc&&(this.sendstate===true)) {
+      if (this.desc && this.sendstate === true) {
         let dd = this.getSendMsg(this.desc);
         // console.log(dd);
 
@@ -267,11 +295,7 @@ export default {
           console.log("发送异常：" + err);
           //消息过期不管
         });
-
-        $(".chartcont").scrollTop($(".chartcont")[0].scrollHeight);
-        // console.log($(".chartcont")[0].scrollHeight);
-        //  $(".chartcont").scrollTop(600);
-        self.sendstate=false;
+        self.sendstate = false;
       }
     },
     getMsg() {
@@ -292,7 +316,8 @@ export default {
           self.chatlist.push(amM2);
           self.desc = "";
           self.remnant = "800";
-          self.sendstate=true;
+          self.sendstate = true;
+          $(".chartcont").scrollTop($(".chartcont")[0].scrollHeight);
         }
       });
     }
@@ -302,11 +327,14 @@ export default {
 
 
 <style type="text/css" scoped lang='less'>
+
 .chart_warp {
   width: 100%;
-  background-color: rgb(231, 237, 243);
+  background: rgb(231, 237, 243) 100%;
+  background-repeat: repeat-y;
   overflow: hidden;
-  padding-bottom: 35px;
+  height: 100%;
+   height: 1024px;
   .chart {
     width: 1200px;
     margin: 25px auto;
@@ -334,6 +362,10 @@ export default {
             margin: -15px 0 0 0;
             p {
               font-size: 14px;
+              line-height: 14px;
+              span {
+                font-size: 14px;
+              }
               img {
                 width: 14px;
                 float: none;
@@ -357,13 +389,14 @@ export default {
         background-color: rgb(98, 165, 255);
         text-align: center;
         .mid_url {
-          width: 400px;
+          width: 80%;
           color: rgb(98, 165, 255);
           height: 30px;
           background-color: rgb(204, 226, 255);
           margin: 30px auto 0 auto;
           border-radius: 30px;
           line-height: 30px;
+          font-size: 16px;
         }
         p {
           margin-top: 10px;
@@ -414,15 +447,16 @@ export default {
 
 .chartcont {
   width: 1200px;
-  height: 600px;
+  height: 560px;
   background-color: white;
   box-shadow: 5px 3px 5px #d6d6d6;
   overflow-x: hidden;
   overflow-y: auto;
-   -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
   .conputTime {
     text-align: center;
     color: rgb(214, 214, 214);
+    font-size: 16px;
   }
   //ie只能改颜色火狐不支持css
   &::-ms-scrollbar {
@@ -494,28 +528,175 @@ export default {
 .line {
   width: 100%;
   border: 1px solid rgba(224, 223, 223, 0.877);
-  margin: 25px 0;
+  margin: 15px 0;
 }
 .chartSend {
   position: relative;
+  width: 1200px;
+  height: 104px;
+  background-color: white;
+  box-shadow: 5px 3px 5px #d6d6d6;
+  textarea {
+    width: 1190px;
+    &:focus {
+      outline: none;
+    }
+    &::-ms-scrollbar {
+      width: 6px;
+      height: 20px;
+    }
+    &::-ms-scrollbar-button {
+      background-color: white;
+    }
+    &::-ms-scrollbar-button {
+      background-color: white;
+    }
+
+    &::-ms-scrollbar-track {
+      background: white;
+      height: 10px;
+    }
+    &::-ms-scrollbar-thumb {
+      width: 6px;
+      height: 20px;
+      background: rgba(197, 208, 223, 1);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 20px;
+    }
+    &::-webkit-scrollbar-button {
+      background-color: white;
+    }
+    &::-webkit-scrollbar-button {
+      background-color: white;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: white;
+      height: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+      width: 6px;
+      height: 20px;
+      background: rgba(197, 208, 223, 1);
+      border-radius: 3px;
+    }
+    &::-moz-scrollbar {
+      width: 6px;
+      height: 20px;
+    }
+    &::-moz-scrollbar-button {
+      background-color: white;
+    }
+    &::-moz-scrollbar-button {
+      background-color: white;
+    }
+
+    &::-moz-scrollbar-track {
+      background: white;
+      height: 10px;
+    }
+    &::-moz-scrollbar-thumb {
+      width: 6px;
+      height: 20px;
+      background: rgba(197, 208, 223, 1);
+      border-radius: 3px;
+    }
+  }
   span {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: 10px;
+    right: 98px;
     font-size: 12px;
     color: rgb(214, 214, 214);
   }
 }
 .btnSend {
-  float: right;
+  position: absolute;
   width: 80px;
-  height: 40px;
+  height: 30px;
   background-color: rgb(70, 144, 236);
   text-align: center;
-  line-height: 40px;
+  line-height: 30px;
   border-radius: 5px;
-  margin-top: 15px;
+  bottom: 6px;
+  right: 8px;
   color: white;
+  font-size: 16px;
   cursor: pointer;
 }
+
+@media screen and (max-width: 1200px) {
+  .chartcont {
+    height: 560px;
+    width: 1200px;
+  }
+  .chartSend {
+    width: 1200px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .chartcont {
+    height: 560px;
+    width: 1022px;
+  }
+  .chartSend {
+    width: 1022px;
+    textarea {
+      width: 1012px;
+    }
+  }
+  .chart_warp > .chart > .chart_top > .topmid {
+    width: 352px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .chartcont {
+    height: 481px;
+    width: 766px;
+  }
+  .chartSend {
+    width: 766px;
+    textarea {
+      width: 756px;
+    }
+  }
+  .chart_warp > .chart > .chart_top {
+    .topleft,
+    .topright {
+      width: 384px;
+    }
+    .topmid {
+    display: none;
+  }
+  } 
+}
+
+//手机屏幕
+// @media screen and (max-width: 414px) {
+//   .chartcont {
+//     height: 409px;
+//     width: 412px;
+//     background-color: white ;
+//     border:1px solid red;
+//   }
+//   .chartSend {
+//     width: 412px;
+//     textarea {
+//       width: 402px;
+//     }
+//   }
+//   .chart_warp > .chart > .chart_top {
+//     .topmid {
+//       display: none;
+//     }
+//   }
+// }
+
+
 </style>
