@@ -1,86 +1,79 @@
 <template>
   <div class="app">
-      <Header :data_name='my_name'></Header>
-      <div class="chart_warp">
-        <div class="chart">
+    <Header :data_name='my_name'></Header>
+    <div class="chart_warp">
+      <div class="chart">
 
-          <div class="chart_top">
+        <div class="chart_top">
 
-            <div class="topleft">
-              <p>{{other_lang}}</p>
-              <div class="le_info">
-                <img :src="other_img" alt="">
-                <div class="le_info_ri" >
-                  <p>
-                    {{other_name}} 
-                    <span v-if='my_lang=="中文"'>(对方)</span> 
-                    <span v-else>(Friend)</span> 
-                  </p>
+          <div class="topleft">
+            <p>{{other_lang}}</p>
+            <div class="le_info">
+              <img :src="other_img" alt="">
+              <div class="le_info_ri">
                 <p>
-                  {{other_state}} 
-                   <img :src="other_stateImg" alt="" v-if='other_state=="在线"||other_state=="On-line"'>
-                   <img :src="other_stateImg2" alt="" v-else>
+                  {{other_name}}
+                  <span v-if='my_lang=="中文"'>(对方)</span>
+                  <span v-else>(Friend)</span>
                 </p>
-                </div>
+                <p>
+                  {{other_state}}
+                  <img :src="other_stateImg" alt="" v-if='other_state=="在线"||other_state=="On-line"'>
+                  <img :src="other_stateImg2" alt="" v-else>
+                </p>
               </div>
             </div>
+          </div>
 
-            <div class="topmid">
-              <div class="mid_url">
-                {{mid_url}}
-              </div>
-              <p>将该链接复制给对方, 与国外友人畅聊无阻碍</p>
+          <div class="topmid">
+            <div class="mid_url">
+              {{mid_url}}
             </div>
+            <p>将该链接复制给对方, 与国外友人畅聊无阻碍</p>
+          </div>
 
-
-            <div class="topright">
-              <p>{{my_lang}}</p>
-              <div class="ri_info">
-                <img :src="my_img" alt="">
-                <div class="ri_info_ri">
-                  <p>
-                    <span v-if='my_lang=="中文"'>(自己)</span> 
-                    <span v-else>(Me)</span> 
+          <div class="topright">
+            <p>{{my_lang}}</p>
+            <div class="ri_info">
+              <img :src="my_img" alt="">
+              <div class="ri_info_ri">
+                <p>
+                  <span v-if='my_lang=="中文"'>(自己)</span>
+                  <span v-else>(Me)</span>
                   {{my_name}}
-                  </p>
-                <p>
-                  {{my_state}} 
-                   <img :src="my_stateImg" alt="" v-if='my_state=="在线"||my_state=="On-line"'>
-                   <img :src="my_stateImg2" alt="" v-else>
                 </p>
-                </div>
+                <p>
+                  {{my_state}}
+                  <img :src="my_stateImg" alt="" v-if='my_state=="在线"||my_state=="On-line"'>
+                  <img :src="my_stateImg2" alt="" v-else>
+                </p>
               </div>
             </div>
+          </div>
         </div>
 
         <div class="chartcont">
           <div class="conputTime">
             {{conputTime()}}
-           </div>
+          </div>
           <div v-for='item in chatlist' :key='item.timeId'>
-          <Chartleft v-if='item.user_id!=myid' :imgsrc="other_img" :now_time="item.showtime"
-          :chart="item.user_cont"  :chart2="item.user_contT" 
-          ></Chartleft>
-          <Chartright v-if='item.user_id==myid' :imgsrc='my_img' :now_time="item.showtime"
-          :chart="item.user_cont"  :chart2="item.user_contT" 
-          ></Chartright>
+            <Chartleft v-if='item.user_id!=myid' :imgsrc="other_img" :now_time="item.showtime" :chart="item.user_cont" :chart2="item.user_contT"></Chartleft>
+            <Chartright v-if='item.user_id==myid' :imgsrc='my_img' :now_time="item.showtime" :chart="item.user_cont" :chart2="item.user_contT"></Chartright>
           </div>
         </div>
 
         <div class="line"></div>
 
         <div class="chartSend">
-           <textarea type='text' style='resize:none; border:none; height:60px;padding:2px 5px;'
-           maxlength='800' v-model='desc'  @input='descInput' @keyup.ctrl.enter="sendMsg"
-          ></textarea>
+          <textarea type='text' style='resize:none; border:none; height:60px;padding:2px 5px;' maxlength='800' v-model='desc' @input='descInput' @keyup.ctrl.enter="sendMsg"></textarea>
           <span>800/{{remnant}}</span>
           <div class="btnSend" @click="sendMsg">
             发送
           </div>
         </div>
-        </div>
       </div>
-      <!-- <Footer></Footer> -->
+    </div>
+    <!-- <Footer></Footer> -->
   </div>
 </template>
 
@@ -327,14 +320,13 @@ export default {
 
 
 <style type="text/css" scoped lang='less'>
-
 .chart_warp {
   width: 100%;
   background: rgb(231, 237, 243) 100%;
   background-repeat: repeat-y;
   overflow: hidden;
   height: 100%;
-   height: 1024px;
+  height: 1024px;
   .chart {
     width: 1200px;
     margin: 25px auto;
@@ -672,9 +664,9 @@ export default {
       width: 384px;
     }
     .topmid {
-    display: none;
+      display: none;
+    }
   }
-  } 
 }
 
 //手机屏幕
@@ -697,6 +689,4 @@ export default {
 //     }
 //   }
 // }
-
-
 </style>
