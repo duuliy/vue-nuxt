@@ -76,7 +76,7 @@
           </div>
 
           <div class="rightList">
-            <ChangeInp :name='item.name' :stage='false' :Offline='item.isOnline' v-for='item in groupList' :key='item.id'></ChangeInp>
+            <ChangeInp :name='item.remark'  :stage='false' :Offline='item.isOnline' :isGuest='my_isGuest' v-for='item in groupList' :key='item.id' :index='item.id' @edit='edit'></ChangeInp>
           </div>
         </div>
 
@@ -102,6 +102,7 @@ export default {
       //left
       my_id: "",
       my_name: "",
+      my_isGuest:"",
       //发送时组的id
       toGroupId: "",
       myName_int: "",
@@ -278,6 +279,7 @@ export default {
         self.my_id = userInfo.user.id;
         self.my_name = userInfo.user.name;
         self.myOnline = userInfo.user.isOnline;
+        self.my_isGuest = userInfo.user.isGuest;
         const chaobj = () => {
           let newChaobj = [];
           userInfo.socialGroups.map(item => {
@@ -292,20 +294,20 @@ export default {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
           self.toGroupId = self.FriendList[0].id;
-          self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          self.url =
+            sessionStorage.getItem("chaturl") + self.FriendList[0].code;
           // self.getHisMsgs(0);
-
         }
         self.peo_num = self.groupList.length;
         console.log(self.FriendList);
       });
 
-        self.connection.on("ReceiveGroupMsg", function(m) {
-          console.log("消息:");
-          // console.log(m);
-          self.receiveM = m;
-          console.log(self.receiveM);
-        });
+      self.connection.on("ReceiveGroupMsg", function(m) {
+        console.log("消息:");
+        // console.log(m);
+        self.receiveM = m;
+        console.log(self.receiveM);
+      });
 
       // 用户上线
       this.connection.on("UserConnected", function(userInfo) {
@@ -370,6 +372,17 @@ export default {
         });
       });
 
+      // 更新用户昵称，接收
+      this.connection.on("UsersNameUpdatedInGroup", user => {
+        console.log(user);
+        console.log(self.FriendList);
+        // self.groupList.map(item=>{
+        //   if(item.){
+
+        //   }
+        // })
+      });
+
       this.connection
         .start()
         .then(res => {
@@ -411,9 +424,9 @@ export default {
       this.toGroupId = data.group.id;
       this.now_groupName = data.group.name;
       this.chatlist = [];
- 
+
       sessionStorage.setItem("chaturl", this.url.split("=")[0] + "=");
-      this.connectServer()
+      this.connectServer();
     },
     //content內容
     getSendMsg(content) {
@@ -515,6 +528,22 @@ export default {
         }
         this.last = now;
       }
+    },
+    edit(Id,name) {
+      let that=this;
+      this.connection.invoke("UpdateUserNameInGroup", {
+          userId: Id,
+          groupId: that.toGroupId,
+          newName: name
+        })
+        .then(res => {
+          alert('修改成功')
+          // console.log("修改了");
+        })
+        .catch(err => {
+          alert('修改失败'+err)
+          // console.log("发送异常：" + err);
+        });
     }
   }
 };
@@ -859,6 +888,6 @@ export default {
     overflow-x: hidden;
     overflow-y: auto;
     .scrollR(@track3);
-   }
+  }
 }
 </style>
