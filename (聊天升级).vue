@@ -23,7 +23,7 @@
 
           <div class="friendList_warp">
             <div class="friendList">
-              <FriendList :name='item.name' :users='item.users' num='99' v-for='item in FriendList' :key='item.id' @changeGroup='changeGroup(item.id)'></FriendList>
+              <FriendList :name='item.name' :users='item.users' num='' v-for='item in FriendList' :key='item.id' @changeGroup='changeGroup(item.id)'></FriendList>
             </div>
             <div class="addGroup" @click='openbox'>
               <img src="../assets/images/add@2x.png" alt=""> {{addGroup}}
@@ -44,11 +44,11 @@
           </div>
 
           <div class="main_name">
-            {{now_groupName}}
+            {{now_groupName.split('_')[1]}}
           </div>
 
-          <div class="cont_mian">
-
+          <div class="cont_mian" @mousewheel="scrollMore">
+            <p @click="getMoreMsg">&#xe615; {{scrollMoreXX}}</p>
             <div v-for='item in chatlist' :key='item.timeId'>
               <Chartleft v-if='item.userId!=my_id' :myname='item.userName' :now_time="item.showtime" :chart="item.content" :chart2="item.contT"></Chartleft>
               <Chartright v-if='item.userId==my_id' :myname='item.userName' :now_time="item.showtime" :chart="item.content"></Chartright>
@@ -107,8 +107,6 @@ export default {
       myName_int: "",
       myOnline: "",
       change_lang: "请选择您的母语",
-      group_name: "a、b、c",
-      group_num: "99+ ",
       addGroup: "创建群聊",
       ulSel: false,
       my_lang: "简体中文",
@@ -119,6 +117,10 @@ export default {
       //cont
       url: "",
       copy: "添加新成员 将该链接复制给需要聊天的小伙伴就可以啦！",
+      pageindex: 0,
+      last: "",
+      oldscrollH: "",
+      scrollMoreXX: "查看更多消息",
       now_groupName: "",
       desc: "",
       remnant: 800,
@@ -175,19 +177,23 @@ export default {
       this.my_langId = chatlang[1];
     }
     this.connectServer();
-    // this.getMsg();
   },
   watch: {
     receiveM() {
       let that = this;
       this.$axios
-        .post("/api/Translate/Translate", {
+        .post("/api/Chat/Translate", {
+          recordId: that.receiveM.id,
+          userId: that.my_id,
           fromLang: that.receiveM.userLang,
           toLang: that.my_langId,
-          content: that.receiveM.content
+          fromContent: that.receiveM.content
         })
         .then(res => {
-          that.chatlist.push(that.showmsg(that.receiveM, res.data));
+          // console.log(res.data.data);
+          that.chatlist.push(
+            that.showmsg(that.receiveM, res.data.data.toContent)
+          );
           that.$nextTick(() => {
             $(".cont_mian").scrollTop($(".cont_mian")[0].scrollHeight);
           });
@@ -236,15 +242,20 @@ export default {
           that.url = sessionStorage.getItem("chaturl") + item.code;
           that.now_groupName = item.name;
           that.toGroupId = item.id;
-          $(".cont_mian").empty();
+          // $(".cont_mian").empty();
+          that.chatlist = [];
+          this.pageindex = 0;
+          that.getHisMsgs(this.pageindex);
+          that.scrollMoreXX = "查看更多消息";
         }
       });
     },
     showmsg(receiveM, cont) {
-      let m = {};
+      let m = {},
+        myDate = new Date().getTime();
       m.id = receiveM.id;
-      (m.showtime = new Date().toLocaleTimeString()),
-        (m.toGroupId = receiveM.toGroupId);
+      m.showtime = this.getLocalTime(myDate);
+      m.toGroupId = receiveM.toGroupId;
       m.userId = receiveM.userId;
       m.userLang = receiveM.userLang;
       m.userName = receiveM.userName;
@@ -281,14 +292,20 @@ export default {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
           self.toGroupId = self.FriendList[0].id;
-          self.url =
-            sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          // self.getHisMsgs(0);
+
         }
         self.peo_num = self.groupList.length;
         console.log(self.FriendList);
       });
 
-      this.getMsg();
+        self.connection.on("ReceiveGroupMsg", function(m) {
+          console.log("消息:");
+          // console.log(m);
+          self.receiveM = m;
+          console.log(self.receiveM);
+        });
 
       // 用户上线
       this.connection.on("UserConnected", function(userInfo) {
@@ -370,6 +387,7 @@ export default {
       let that = this;
       const res = await this.$axios.get("/api/App/CreateChatGroupAsync");
       let data = res.data;
+      // console.log(data)
       let group = {
         users: [{}]
       };
@@ -390,7 +408,12 @@ export default {
       this.groupList = group.users;
       this.peo_num = this.groupList.length;
       this.url = data.url;
+      this.toGroupId = data.group.id;
+      this.now_groupName = data.group.name;
+      this.chatlist = [];
+ 
       sessionStorage.setItem("chaturl", this.url.split("=")[0] + "=");
+      this.connectServer()
     },
     //content內容
     getSendMsg(content) {
@@ -412,7 +435,7 @@ export default {
           .invoke("SendToGroup", dd)
           .then(res => {
             console.log("发送了");
-            self.receiveM = dd;
+            // self.receiveM = dd;
             self.desc = "";
           })
           .catch(err => {
@@ -420,16 +443,78 @@ export default {
           });
       }
     },
-    getMsg() {
-      // 接收组的信息
-      let self = this;
-
-      this.connection.on("ReceiveGroupMsg", function(m) {
-        console.log("消息:");
-        // console.log(m);
-        self.receiveM = m;
-        console.log(self.receiveM);
+    getLocalTime(timestamp) {
+      let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      let Y = date.getFullYear() + "-";
+      let M =
+        (date.getMonth() + 1 < 10
+          ? "0" + (date.getMonth() + 1)
+          : date.getMonth() + 1) + "-";
+      let D = date.getDate() + " ";
+      let h = date.getHours() + ":";
+      let m = date.getMinutes() + ":";
+      let s = date.getSeconds();
+      //  return Y+M+D+h+m+s;
+      return h + m + s;
+    },
+    //拿历史记录
+    getHisMsg(item) {
+      let m = {};
+      m.id = item.id;
+      m.showtime = this.getLocalTime(item.serverReceiveTimestamp);
+      m.toGroupId = item.toGroupId;
+      m.userId = item.userId;
+      m.userLang = item.userLang;
+      m.userName = item.userName;
+      m.content = item.content;
+      item.toLang ? (m.contT = item.toContent) : (m.contT = item.content);
+      return m;
+    },
+    async getHisMsgs(Inde) {
+      let that = this;
+      const res = await this.$axios.post("/api/Chat/GetGroupChatMessage", {
+        userId: that.my_id,
+        groupId: that.toGroupId,
+        pageIndex: Inde,
+        pageSize: 20
       });
+      console.log(res.data.result);
+      if (res.data.result.length == 0) {
+        this.scrollMoreXX = "暂无更多消息";
+      } else {
+        res.data.result.map(item => {
+          let mm = this.getHisMsg(item);
+          this.chatlist.unshift(mm);
+        });
+        this.oldscrollH = $(".cont_mian")[0].scrollHeight;
+      }
+      // console.log(this.chatlist);
+    },
+    getMoreMsg() {
+      this.pageindex++;
+      this.getHisMsgs(this.pageindex);
+      this.$nextTick(() => {
+        $(".cont_mian").scrollTop(
+          $(".cont_mian")[0].scrollHeight - this.oldscrollH
+        );
+      });
+    },
+    scrollMore() {
+      let coor = $(".cont_mian").scrollTop();
+      if (coor == 0) {
+        let now = new Date().getSeconds();
+        let tigger = now - this.last;
+        if (tigger == "0") {
+          this.pageindex++;
+          this.getHisMsgs(this.pageindex);
+          this.$nextTick(() => {
+            $(".cont_mian").scrollTop(
+              $(".cont_mian")[0].scrollHeight - this.oldscrollH
+            );
+          });
+        }
+        this.last = now;
+      }
     }
   }
 };
@@ -696,6 +781,14 @@ export default {
     border-bottom: 2px solid rgba(217, 217, 217, 0.5);
     position: relative;
     overflow-x: hidden;
+    p {
+      width: 140px;
+      margin: 3px auto 0 auto;
+      font-family: chartfont;
+      color: rgba(78, 169, 233, 1);
+      font-size: 13px;
+      cursor: pointer;
+    }
     .scrollR(@track2);
   }
   .cont_Send {
