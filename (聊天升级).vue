@@ -766,6 +766,6 @@ export default {
     overflow-x: hidden;
     overflow-y: auto;
     .scrollR(@track3);
-  }
+   }
 }
 </style>
