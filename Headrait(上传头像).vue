@@ -57,7 +57,7 @@
             // },
 
             // openAlbum() {
-            //     console.log('opening album');
+            //     console.log('opening album') ;
             // },
             changeFn(e) {
                 let deviceFile = e.target.files;
