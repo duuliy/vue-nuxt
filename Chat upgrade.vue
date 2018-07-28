@@ -23,7 +23,7 @@
 
           <div class="friendList_warp">
             <div class="friendList">
-              <FriendList :name='item.name' :users='item.users' num='' v-for='item in FriendList' :key='item.id' @changeGroup='changeGroup(item.id)'></FriendList>
+              <FriendList :class="{showEwarp:item.id==toGroupId}" :name='item.name' :users='item.users' num='' v-for='item in FriendList' :key='item.id' @changeGroup='changeGroup(item.id)'></FriendList>
             </div>
             <div class="addGroup" @click='openbox'>
               <img src="../assets/images/add@2x.png" alt=""> {{addGroup}}
@@ -76,7 +76,7 @@
           </div>
 
           <div class="rightList">
-            <ChangeInp :name='item.remark'  :stage='false' :Offline='item.isOnline' :isGuest='my_isGuest' v-for='item in groupList' :key='item.id' :index='item.id' @edit='edit'></ChangeInp>
+            <ChangeInp :item="item" :name='item.remark' v-for='item in groupList' :stage='false' :Offline='item.isOnline' :isGuest='my_isGuest'  :key='item.id' :index='item.id' @edit='edit'></ChangeInp>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default {
       //left
       my_id: "",
       my_name: "",
-      my_isGuest:"",
+      my_isGuest: "",
       //发送时组的id
       toGroupId: "",
       myName_int: "",
@@ -192,14 +192,18 @@ export default {
         })
         .then(res => {
           // console.log(res.data.data);
-          that.chatlist.push(
-            that.showmsg(that.receiveM, res.data.data.toContent)
-          );
-          that.$nextTick(() => {
-            $(".cont_mian").scrollTop($(".cont_mian")[0].scrollHeight);
-          });
+
+            if (that.toGroupId == that.receiveM.toGroupId) {
+              that.chatlist.push(
+                that.showmsg(that.receiveM, res.data.data.toContent)
+              );
+              that.$nextTick(() => {
+                $(".cont_mian").scrollTop($(".cont_mian")[0].scrollHeight);
+              });
+            }
+
           // console.log("watch");
-          // console.log(that.chatlist);
+          console.log(that.receiveM);
         });
     }
   },
@@ -250,6 +254,8 @@ export default {
           that.scrollMoreXX = "查看更多消息";
         }
       });
+
+
     },
     showmsg(receiveM, cont) {
       let m = {},
@@ -275,7 +281,9 @@ export default {
       //设置用户的社交信息
       this.connection.on("SetSocialUserInfo", function(userInfo) {
         console.log("设置用户的社交信息");
-        // console.log(userInfo);
+
+        console.log(userInfo);
+        // console.log(userInfo.socialGroups[0]);
         self.my_id = userInfo.user.id;
         self.my_name = userInfo.user.name;
         self.myOnline = userInfo.user.isOnline;
@@ -285,18 +293,29 @@ export default {
           userInfo.socialGroups.map(item => {
             let newobj = item.group;
             delete item.group;
-            newChaobj.push(Object.assign(newobj, item));
+            let newUsers={
+              "users":[]
+            };
+            item.users.map(ite=>{
+              let newUser=ite.user;
+              delete ite.user;
+              newUsers.users.push(Object.assign(newUser,ite))
+            })
+            
+
+            newChaobj.push(Object.assign(newUsers,newobj));
+            // newChaobj.push(Object.assign(newobj, item));
           });
           return newChaobj;
         };
+        // console.log(chaobj())
         self.FriendList = chaobj();
         if (self.FriendList[0]) {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
           self.toGroupId = self.FriendList[0].id;
-          self.url =
-            sessionStorage.getItem("chaturl") + self.FriendList[0].code;
-          // self.getHisMsgs(0);
+          self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          self.getHisMsgs(0);
         }
         self.peo_num = self.groupList.length;
         console.log(self.FriendList);
@@ -329,6 +348,9 @@ export default {
               };
               let boo = add();
               if (boo == -1) {
+                userInfo.user.remark=index.remark;
+
+
                 item.users.push(userInfo.user);
                 self.peo_num = item.users.length;
               }
@@ -374,13 +396,24 @@ export default {
 
       // 更新用户昵称，接收
       this.connection.on("UsersNameUpdatedInGroup", user => {
-        console.log(user);
-        console.log(self.FriendList);
-        // self.groupList.map(item=>{
-        //   if(item.){
-
+        // console.log(user)
+        
+        // self.FriendList.map((item,i)=>{
+        //   if(item.id==user[0].groupId){
+        //     item.users.map((ite)=>{
+        //       if(ite.id==user[0].userId){
+        //         ite.remark=user[0].newName;
+        //         // self.$set(self.FriendList.item[i].remark, user[0].newName);
+        //       }
+        //     })
         //   }
         // })
+
+        self.groupList.map(item=>{
+          if(item.id==user[0].userId){
+            item.remark=user[0].newName;
+          }
+        })
       });
 
       this.connection
@@ -400,6 +433,7 @@ export default {
       let that = this;
       const res = await this.$axios.get("/api/App/CreateChatGroupAsync");
       let data = res.data;
+      // console.log('创建群')
       // console.log(data)
       let group = {
         users: [{}]
@@ -413,7 +447,7 @@ export default {
       group.users[0].isGuest = data.user.isGuest;
       group.users[0].isOnline = data.user.isOnline;
       group.users[0].lang = data.user.lang;
-      group.users[0].remark = data.user.remark;
+      group.users[0].remark = data.remark;
 
       this.FriendList.push(group);
       // console.log(this.FriendList);
@@ -426,7 +460,8 @@ export default {
       this.chatlist = [];
 
       sessionStorage.setItem("chaturl", this.url.split("=")[0] + "=");
-      this.connectServer();
+      // this.connectServer();
+      location.reload()
     },
     //content內容
     getSendMsg(content) {
@@ -491,7 +526,7 @@ export default {
         pageIndex: Inde,
         pageSize: 20
       });
-      console.log(res.data.result);
+      // console.log(res.data.result);
       if (res.data.result.length == 0) {
         this.scrollMoreXX = "暂无更多消息";
       } else {
@@ -529,19 +564,20 @@ export default {
         this.last = now;
       }
     },
-    edit(Id,name) {
-      let that=this;
-      this.connection.invoke("UpdateUserNameInGroup", {
+    edit(Id, name) {
+      let that = this;
+      this.connection
+        .invoke("UpdateUserNameInGroup", {
           userId: Id,
           groupId: that.toGroupId,
           newName: name
         })
         .then(res => {
-          alert('修改成功')
-          // console.log("修改了");
+          // alert("修改成功");
+
         })
         .catch(err => {
-          alert('修改失败'+err)
+          alert("修改失败" + err);
           // console.log("发送异常：" + err);
         });
     }
@@ -729,6 +765,9 @@ export default {
       overflow-x: hidden;
       overflow-y: auto;
       .scrollR(@track1);
+      .showEwarp{
+        background:rgba(69,83,102,1);
+      }
     }
     .addGroup {
       cursor: pointer;
