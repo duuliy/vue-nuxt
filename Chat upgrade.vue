@@ -326,8 +326,7 @@ export default {
         // console.log(m);
         self.receiveM = m;
         console.log(self.receiveM);
-      });
-
+      })
       // 用户上线
       this.connection.on("UserConnected", function(userInfo) {
         console.log("用户上线");
