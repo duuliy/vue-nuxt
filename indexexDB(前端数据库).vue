@@ -40,7 +40,7 @@ export default {
           console.log(err);
         });
     },
-    //删除
+    / /删除
     removeMsg() {
       this.$removeItem("somekey")
         .then(() => {
