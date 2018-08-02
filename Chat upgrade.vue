@@ -1,12 +1,12 @@
 <template>
-  <div class="app" @click='toggle'>
+  <div class="app" @click.stop='toggle'>
     <Header :data_name='my_name'></Header>
     <div class="chat_warp">
       <div class="chat">
 
         <div class="chat_left">
           <div class="myinfo">
-            <ChangeInp :name='my_name' :stage='true' :Offline='myOnline'></ChangeInp>
+            <ChangeInp :name='my_name' :stage='true' :Offline='myOnline' :isGuest='my_isGuest' :index='55'></ChangeInp>
           </div>
           <div class="lang_change">
             <h4>{{change_lang}}</h4>
@@ -25,7 +25,7 @@
             <div class="friendList">
               <FriendList :class="{showEwarp:item.id==toGroupId}" :name='item.name' :users='item.users' num='' v-for='item in FriendList' :key='item.id' @changeGroup='changeGroup(item.id)'></FriendList>
             </div>
-            <div class="addGroup" @click='openbox'>
+            <div class="addGroup" @click='openbox' v-if='my_isGuest==false'>
               <img src="../assets/images/add@2x.png" alt=""> {{addGroup}}
             </div>
           </div>
@@ -33,7 +33,7 @@
 
         <div class="chat_cont">
 
-          <div class="cont_title">
+          <div class="cont_title" v-if='my_isGuest==false'>
             <div class="url">
               {{url}}
             </div>
@@ -41,6 +41,10 @@
             <p @click.stop='copyUrl'>
               <img src="../assets/images/addpeople@2x.png" alt=""> {{copy}}
             </p>
+          </div>
+          <div class="cont_title cotit" v-else>
+            <h3 style='font-size:22px;color:#B2D0FF;margin:15px 0 0 15px;letter-spacing:5.5px;'>多语即时聊天</h3>
+            <p style='font-size:16px;color:#B2D0FF;'>Multi - Language IM</p>
           </div>
 
           <div class="main_name">
@@ -57,7 +61,7 @@
 
           <div class="cont_Send">
             <textarea type='text' maxlength='800' v-model='desc' @input='descInput' @keyup.ctrl.enter="sendMsg"></textarea>
-            <span>800/{{remnant}}</span>
+            <span>按下Crtl+Enter发送 &nbsp;&nbsp;&nbsp; 800/{{remnant}}</span>
             <div class="btnSend" @click.stop="sendMsg">
               发送
             </div>
@@ -76,7 +80,7 @@
           </div>
 
           <div class="rightList">
-            <ChangeInp :item="item" :name='item.remark' v-for='item in groupList' :stage='false' :Offline='item.isOnline' :isGuest='my_isGuest'  :key='item.id' :index='item.id' @edit='edit'></ChangeInp>
+            <ChangeInp :item="item" :name='item.remark' v-for='item in groupList' :stage='false' :Offline='item.isOnline' :isGuest='my_isGuest' :key='item.id' :my_id='my_id' :index='item.id' @edit='edit'></ChangeInp>
           </div>
         </div>
 
@@ -110,9 +114,38 @@ export default {
       change_lang: "请选择您的母语",
       addGroup: "创建群聊",
       ulSel: false,
-      my_lang: "简体中文",
-      my_langId: "0",
+      my_lang: "",
+      my_langId: "",
       langs: [],
+      lang_cn: [
+        "zh-CN",
+        "en",
+        ["zh-TW", "zh-HK"],
+        "ru",
+        "ja",
+        "ko",
+        "fr",
+        "de",
+        "es",
+        "pt",
+        "ar",
+        "it",
+        "th",
+        "vi",
+        "lo",
+        "fi",
+        "ms",
+        "tr",
+        "id",
+        "he",
+        "pl",
+        "nl",
+        "no",
+        "cs",
+        "da",
+        "bg",
+        "fa"
+      ],
       FriendList: [],
 
       //cont
@@ -170,6 +203,38 @@ export default {
   async created() {
     const res = await this.$axios.get("/api/App/GetLanguages");
     this.langs = res.data;
+    // console.log(this.langs)Abbreviation
+    this.langs.map((item, index) => {
+      // console.log(index)
+      item.Abbreviation = this.lang_cn[index];
+    });
+    // console.log(this.langs);
+    const locallang = navigator.language || navigator.userLanguage; //常规浏览器语言和IE浏览器
+    const locallang2 = locallang.substr(0, 2);
+    let langnum=0;
+    console.log(locallang2)
+    this.langs.map(item => {
+      if (item.Abbreviation == locallang2) {
+        // console.log(959)
+        // console.log(item.name)
+        this.my_langId = item.id;
+        this.my_lang = item.name;
+        langnum++
+      } else if (locallang2 == "zh") {
+        langnum++
+        if (locallang == "zh-CN") {
+          this.my_langId = '0';
+          this.my_lang = "简体中文(简体中文)";
+        } else if (locallang == "zh-TW" || locallang == "zh-HK") {
+          this.my_langId = '20';
+          this.my_lang = "繁体中文(繁體中文)";
+        }
+      }
+    });
+    if(langnum==0){
+      this.my_langId = '10';
+      this.my_lang = "英语(English)";
+    }
   },
   mounted() {
     if (sessionStorage.getItem("chatlang")) {
@@ -193,14 +258,14 @@ export default {
         .then(res => {
           // console.log(res.data.data);
 
-            if (that.toGroupId == that.receiveM.toGroupId) {
-              that.chatlist.push(
-                that.showmsg(that.receiveM, res.data.data.toContent)
-              );
-              that.$nextTick(() => {
-                $(".cont_mian").scrollTop($(".cont_mian")[0].scrollHeight);
-              });
-            }
+          if (that.toGroupId == that.receiveM.toGroupId) {
+            that.chatlist.push(
+              that.showmsg(that.receiveM, res.data.data.toContent)
+            );
+            that.$nextTick(() => {
+              $(".cont_mian").scrollTop($(".cont_mian")[0].scrollHeight);
+            });
+          }
 
           // console.log("watch");
           console.log(that.receiveM);
@@ -210,6 +275,7 @@ export default {
   methods: {
     toggle() {
       this.ulSel = false;
+      // eventBus.$emit("inptoggle", false);
     },
     copyUrl() {
       this.url;
@@ -217,10 +283,12 @@ export default {
         const e = document.querySelector("#copyURL");
         e.select();
         document.execCommand("copy");
+        alert("复制成功，将链接发送给小伙伴把！");
         return true;
       }
       if (window.clipboardData) {
         window.clipboardData.setData("copyURL", this.url);
+        alert("复制成功，将链接发送给小伙伴把！");
         return true;
       }
       return false;
@@ -254,8 +322,6 @@ export default {
           that.scrollMoreXX = "查看更多消息";
         }
       });
-
-
     },
     showmsg(receiveM, cont) {
       let m = {},
@@ -293,17 +359,16 @@ export default {
           userInfo.socialGroups.map(item => {
             let newobj = item.group;
             delete item.group;
-            let newUsers={
-              "users":[]
+            let newUsers = {
+              users: []
             };
-            item.users.map(ite=>{
-              let newUser=ite.user;
+            item.users.map(ite => {
+              let newUser = ite.user;
               delete ite.user;
-              newUsers.users.push(Object.assign(newUser,ite))
-            })
-            
+              newUsers.users.push(Object.assign(newUser, ite));
+            });
 
-            newChaobj.push(Object.assign(newUsers,newobj));
+            newChaobj.push(Object.assign(newUsers, newobj));
             // newChaobj.push(Object.assign(newobj, item));
           });
           return newChaobj;
@@ -314,7 +379,9 @@ export default {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
           self.toGroupId = self.FriendList[0].id;
-          self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          // self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
+          self.url =
+            window.location.href + "Chat/Join?c=" + self.FriendList[0].code;
           self.getHisMsgs(0);
         }
         self.peo_num = self.groupList.length;
@@ -326,7 +393,7 @@ export default {
         // console.log(m);
         self.receiveM = m;
         console.log(self.receiveM);
-      })
+      });
       // 用户上线
       this.connection.on("UserConnected", function(userInfo) {
         console.log("用户上线");
@@ -347,8 +414,7 @@ export default {
               };
               let boo = add();
               if (boo == -1) {
-                userInfo.user.remark=index.remark;
-
+                userInfo.user.remark = index.remark;
 
                 item.users.push(userInfo.user);
                 self.peo_num = item.users.length;
@@ -396,7 +462,7 @@ export default {
       // 更新用户昵称，接收
       this.connection.on("UsersNameUpdatedInGroup", user => {
         // console.log(user)
-        
+
         // self.FriendList.map((item,i)=>{
         //   if(item.id==user[0].groupId){
         //     item.users.map((ite)=>{
@@ -408,11 +474,11 @@ export default {
         //   }
         // })
 
-        self.groupList.map(item=>{
-          if(item.id==user[0].userId){
-            item.remark=user[0].newName;
+        self.groupList.map(item => {
+          if (item.id == user[0].userId) {
+            item.remark = user[0].newName;
           }
-        })
+        });
       });
 
       this.connection
@@ -460,7 +526,7 @@ export default {
 
       sessionStorage.setItem("chaturl", this.url.split("=")[0] + "=");
       // this.connectServer();
-      location.reload()
+      location.reload();
     },
     //content內容
     getSendMsg(content) {
@@ -538,29 +604,33 @@ export default {
       // console.log(this.chatlist);
     },
     getMoreMsg() {
-      this.pageindex++;
-      this.getHisMsgs(this.pageindex);
-      this.$nextTick(() => {
-        $(".cont_mian").scrollTop(
-          $(".cont_mian")[0].scrollHeight - this.oldscrollH
-        );
-      });
+      if (this.scrollMoreXX != "暂无更多消息") {
+        this.pageindex++;
+        this.getHisMsgs(this.pageindex);
+        this.$nextTick(() => {
+          $(".cont_mian").scrollTop(
+            $(".cont_mian")[0].scrollHeight - this.oldscrollH
+          );
+        });
+      }
     },
     scrollMore() {
-      let coor = $(".cont_mian").scrollTop();
-      if (coor == 0) {
-        let now = new Date().getSeconds();
-        let tigger = now - this.last;
-        if (tigger == "0") {
-          this.pageindex++;
-          this.getHisMsgs(this.pageindex);
-          this.$nextTick(() => {
-            $(".cont_mian").scrollTop(
-              $(".cont_mian")[0].scrollHeight - this.oldscrollH
-            );
-          });
+      if (this.scrollMoreXX != "暂无更多消息") {
+        let coor = $(".cont_mian").scrollTop();
+        if (coor == 0) {
+          let now = new Date().getSeconds();
+          let tigger = now - this.last;
+          if (tigger == "0") {
+            this.pageindex++;
+            this.getHisMsgs(this.pageindex);
+            this.$nextTick(() => {
+              $(".cont_mian").scrollTop(
+                $(".cont_mian")[0].scrollHeight - this.oldscrollH
+              );
+            });
+          }
+          this.last = now;
         }
-        this.last = now;
       }
     },
     edit(Id, name) {
@@ -573,7 +643,6 @@ export default {
         })
         .then(res => {
           // alert("修改成功");
-
         })
         .catch(err => {
           alert("修改失败" + err);
@@ -701,7 +770,7 @@ export default {
     }
     .select_box {
       margin: 5px 0 0 15px;
-      width: 147px;
+      width: 196px;
       height: 34px;
       font-size: 14px;
       color: white;
@@ -732,7 +801,7 @@ export default {
         text-indent: 10px;
       }
       ul {
-        width: 145px;
+        width: 195px;
         height: 249px;
         overflow-x: hidden;
         overflow-y: auto;
@@ -764,8 +833,8 @@ export default {
       overflow-x: hidden;
       overflow-y: auto;
       .scrollR(@track1);
-      .showEwarp{
-        background:rgba(69,83,102,1);
+      .showEwarp {
+        background: rgba(69, 83, 102, 1);
       }
     }
     .addGroup {
