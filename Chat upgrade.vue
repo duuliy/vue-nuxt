@@ -3,7 +3,6 @@
     <Header :data_name='my_name'></Header>
     <div class="chat_warp">
       <div class="chat">
-
         <div class="chat_left">
           <div class="myinfo">
             <ChangeInp :name='my_name' :stage='true' :Offline='myOnline' :isGuest='my_isGuest' :index='55'></ChangeInp>
