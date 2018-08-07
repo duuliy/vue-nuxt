@@ -3,6 +3,7 @@
     <Header :data_name='my_name'></Header>
     <div class="chat_warp">
       <div class="chat">
+
         <div class="chat_left">
           <div class="myinfo">
             <ChangeInp :name='my_name' :stage='true' :Offline='myOnline' :isGuest='my_isGuest' :index='55'></ChangeInp>
@@ -59,10 +60,21 @@
           </div>
 
           <div class="cont_Send">
-            <textarea type='text' maxlength='800' v-model='desc' @input='descInput' @keyup.ctrl.enter="sendMsg"></textarea>
-            <span>按下Crtl+Enter发送 &nbsp;&nbsp;&nbsp; 800/{{remnant}}</span>
+            <textarea id='area' type='text' maxlength='800' v-model='desc' @input='descInput' @keydown="ifSend()"></textarea>            
+            <span> 800/{{remnant}}</span>
             <div class="btnSend" @click.stop="sendMsg">
-              发送
+              &nbsp;发送(<b>S</b>)
+              <div class="triangle" @click.stop='tips=!tips'></div>
+            </div>
+            <div class="tips" v-if='tips'>
+              <ul>
+                <li @click.stop="changsend">
+                  <Tick class="tick" v-if='tick' /> 按Enter键发送消息
+                </li>
+                <li @click.stop="changsend2">
+                  <Tick class="tick" v-if='!tick' /> 按Ctrl+Enter键发送消息
+                </li>
+              </ul>
             </div>
           </div>
 
@@ -97,6 +109,7 @@ import Chartright from "./Chartroom/Chartright";
 import ChangeInp from "./Chartroom/Change_inp";
 import FriendList from "./Chartroom/FriendList";
 import BombBox from "./common/Bomb_box";
+import Tick from "./common/Tick";
 
 export default {
   name: "Change",
@@ -180,6 +193,8 @@ export default {
         // },
       ],
       receiveM: {},
+      tips:false,
+      tick:false,
       //signalR
       connection: null,
       sendstate: true,
@@ -197,7 +212,8 @@ export default {
     Chartright,
     ChangeInp,
     FriendList,
-    BombBox
+    BombBox,
+    Tick
   },
   async created() {
     const res = await this.$axios.get("/api/App/GetLanguages");
@@ -209,13 +225,10 @@ export default {
     });
     // console.log(this.langs);
     const locallang = navigator.language || navigator.userLanguage; //常规浏览器语言和IE浏览器
-    const locallang2 = locallang.substr(0, 2);
+    const locallang2 = locallang.slice(0, 2);
     let langnum=0;
-    console.log(locallang2)
     this.langs.map(item => {
-      if (item.Abbreviation == locallang2) {
-        // console.log(959)
-        // console.log(item.name)
+      if (item.Abbreviation == locallang2||item.Abbreviation == locallang) {
         this.my_langId = item.id;
         this.my_lang = item.name;
         langnum++
@@ -274,6 +287,7 @@ export default {
   methods: {
     toggle() {
       this.ulSel = false;
+      this.tips = false;
       // eventBus.$emit("inptoggle", false);
     },
     copyUrl() {
@@ -549,10 +563,30 @@ export default {
             console.log("发送了");
             // self.receiveM = dd;
             self.desc = "";
+            self.remnant=800;
           })
           .catch(err => {
             console.log("发送异常：" + err);
           });
+      }else{
+        alert('输入内容不能为空')
+      }
+    },
+    ifSend(event){
+      event = event || window.event;
+      if(this.tick===false){
+        if(event.keyCode == 13 && event.ctrlKey){
+          this.sendMsg()
+        }else if(event.keyCode == 13){
+          // document.getElementById("area").value += "\n";
+        }
+      }else if(this.tick===true){
+        if(event.keyCode == 13&& event.ctrlKey){
+          document.getElementById("area").value += "\n";
+        }else if(event.keyCode == 13){
+          event.returnValue=false;
+          this.sendMsg()
+        }
       }
     },
     getLocalTime(timestamp) {
@@ -647,6 +681,12 @@ export default {
           alert("修改失败" + err);
           // console.log("发送异常：" + err);
         });
+    },
+    changsend(){
+      this.tick=true;
+    },
+    changsend2(){
+      this.tick=false;
     }
   }
 };
@@ -931,6 +971,27 @@ export default {
     width: 100%;
     height: 104px;
     overflow: hidden;
+    .tips {
+      right: 10px;
+      top: 5px;
+      border-radius: 3px;
+      position: absolute;
+      border: 1px solid rgb(216, 216, 216);
+      box-shadow: 5px 5px 5px rgb(216, 216, 216);
+      ul li {
+        width: 180px;
+        height: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        line-height: 25px;
+        position: relative;
+        text-indent: 20px;
+        .tick {
+          position: absolute;
+          left: -17px;
+        }
+      }
+    }
     textarea {
       width: 940px;
       resize: none;
@@ -954,7 +1015,7 @@ export default {
       width: 80px;
       height: 30px;
       background: rgba(95, 146, 239, 1);
-      text-align: center;
+      text-align: left;
       line-height: 30px;
       border-radius: 5px;
       bottom: 8px;
@@ -962,6 +1023,37 @@ export default {
       color: white;
       font-size: 16px;
       cursor: pointer;
+      &:hover {
+        background: rgba(95, 146, 239, 0.9);
+      }
+      &:hover .triangle {
+        background: rgba(199, 203, 209, 0.5);
+      }
+      b {
+        text-decoration: underline;
+        position: relative;
+        font-size: 12px;
+      }
+      .triangle {
+        display: inline-block;
+        position: relative;
+        width: 16px;
+        height: 18px;
+        border-radius: 5px;
+        top: 3px;
+        line-height: 16px;
+        &:after {
+          content: "";
+          position: absolute;
+          width: 0;
+          height: 0;
+          border-top: 8px solid white;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          top: 5px;
+          left: 4px;
+        }
+      }
     }
   }
 }
