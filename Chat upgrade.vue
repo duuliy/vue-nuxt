@@ -1088,4 +1088,4 @@ export default {
     .scrollR(@track3);
   }
 }
-</style>
+</style >
