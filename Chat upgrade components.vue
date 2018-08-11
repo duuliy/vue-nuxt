@@ -1,4 +1,4 @@
- <template>
+ <template >
   <div :class="stage==true?'showEdname':'showEdname pi2'" >
     <div :class="Offline==true?'header_pic pcc' :'header_pic'" ref='hpic'>
       {{name.slice(0, 2).toUpperCase()}}
