@@ -60,10 +60,11 @@
           </div>
 
           <div class="cont_Send">
-            <textarea id='area' type='text' maxlength='800' v-model='desc' @input='descInput' @keydown="ifSend()"></textarea>            
+            <textarea id='area' type='text' maxlength='800' v-model='desc' @input='descInput' @keydown="ifSend($event)"></textarea>
             <span> 800/{{remnant}}</span>
             <div class="btnSend" @click.stop="sendMsg">
-              &nbsp;发送(<b>S</b>)
+              &nbsp;发送(
+              <b>S</b>)
               <div class="triangle" @click.stop='tips=!tips'></div>
             </div>
             <div class="tips" v-if='tips'>
@@ -193,8 +194,8 @@ export default {
         // },
       ],
       receiveM: {},
-      tips:false,
-      tick:false,
+      tips: false,
+      tick: false,
       //signalR
       connection: null,
       sendstate: true,
@@ -226,25 +227,25 @@ export default {
     // console.log(this.langs);
     const locallang = navigator.language || navigator.userLanguage; //常规浏览器语言和IE浏览器
     const locallang2 = locallang.slice(0, 2);
-    let langnum=0;
+    let langnum = 0;
     this.langs.map(item => {
-      if (item.Abbreviation == locallang2||item.Abbreviation == locallang) {
+      if (item.Abbreviation == locallang2 || item.Abbreviation == locallang) {
         this.my_langId = item.id;
         this.my_lang = item.name;
-        langnum++
+        langnum++;
       } else if (locallang2 == "zh") {
-        langnum++
+        langnum++;
         if (locallang == "zh-CN") {
-          this.my_langId = '0';
+          this.my_langId = "0";
           this.my_lang = "简体中文(简体中文)";
         } else if (locallang == "zh-TW" || locallang == "zh-HK") {
-          this.my_langId = '20';
+          this.my_langId = "20";
           this.my_lang = "繁体中文(繁體中文)";
         }
       }
     });
-    if(langnum==0){
-      this.my_langId = '10';
+    if (langnum == 0) {
+      this.my_langId = "10";
       this.my_lang = "英语(English)";
     }
   },
@@ -291,20 +292,25 @@ export default {
       // eventBus.$emit("inptoggle", false);
     },
     copyUrl() {
-      this.url;
-      if (document.execCommand) {
-        const e = document.querySelector("#copyURL");
-        e.select();
-        document.execCommand("copy");
-        alert("复制成功，将链接发送给小伙伴把！");
-        return true;
+      console.log(this.url);
+      if (!this.url) {
+        alert("目前没有链接，请您创建群聊");
+      } else {
+        this.url;
+        if (document.execCommand) {
+          const e = document.querySelector("#copyURL");
+          e.select();
+          document.execCommand("copy");
+          alert("复制成功，将链接发送给小伙伴把！");
+          return true;
+        }
+        if (window.clipboardData) {
+          window.clipboardData.setData("copyURL", this.url);
+          alert("复制成功，将链接发送给小伙伴把！");
+          return true;
+        }
+        return false;
       }
-      if (window.clipboardData) {
-        window.clipboardData.setData("copyURL", this.url);
-        alert("复制成功，将链接发送给小伙伴把！");
-        return true;
-      }
-      return false;
     },
     descInput() {
       let txtVal = this.desc.length;
@@ -555,7 +561,7 @@ export default {
     },
     sendMsg() {
       let self = this;
-      if (this.desc && this.sendstate === true) {
+      if (this.toGroupId && this.desc && this.sendstate === true) {
         let dd = this.getSendMsg(this.desc);
         this.connection
           .invoke("SendToGroup", dd)
@@ -563,29 +569,29 @@ export default {
             console.log("发送了");
             // self.receiveM = dd;
             self.desc = "";
-            self.remnant=800;
+            self.remnant = 800;
           })
           .catch(err => {
             console.log("发送异常：" + err);
           });
-      }else{
-        alert('输入内容不能为空')
+      } else {
+        alert("非法发送!");
       }
     },
-    ifSend(event){
+    ifSend(event) {
       event = event || window.event;
-      if(this.tick===false){
-        if(event.keyCode == 13 && event.ctrlKey){
-          this.sendMsg()
-        }else if(event.keyCode == 13){
+      if (this.tick === false) {
+        if (event.keyCode == 13 && event.ctrlKey) {
+          this.sendMsg();
+        } else if (event.keyCode == 13) {
           // document.getElementById("area").value += "\n";
         }
-      }else if(this.tick===true){
-        if(event.keyCode == 13&& event.ctrlKey){
+      } else if (this.tick === true) {
+        if (event.keyCode == 13 && event.ctrlKey) {
           document.getElementById("area").value += "\n";
-        }else if(event.keyCode == 13){
-          event.returnValue=false;
-          this.sendMsg()
+        } else if (event.keyCode == 13) {
+          event.returnValue = false;
+          this.sendMsg();
         }
       }
     },
@@ -682,11 +688,11 @@ export default {
           // console.log("发送异常：" + err);
         });
     },
-    changsend(){
-      this.tick=true;
+    changsend() {
+      this.tick = true;
     },
-    changsend2(){
-      this.tick=false;
+    changsend2() {
+      this.tick = false;
     }
   }
 };
@@ -1088,4 +1094,4 @@ export default {
     .scrollR(@track3);
   }
 }
-</style >
+</style>
