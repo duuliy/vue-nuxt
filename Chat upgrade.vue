@@ -580,6 +580,7 @@ export default {
     },
     ifSend(event) {
       event = event || window.event;
+      console.log(event.keyCode);
       if (this.tick === false) {
         if (event.keyCode == 13 && event.ctrlKey) {
           this.sendMsg();
@@ -593,6 +594,9 @@ export default {
           event.returnValue = false;
           this.sendMsg();
         }
+      } 
+      if (event.keyCode == 83 && event.altKey) {
+        this.sendMsg();
       }
     },
     getLocalTime(timestamp) {
