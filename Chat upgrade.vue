@@ -48,7 +48,7 @@
           </div>
 
           <div class="main_name">
-            {{now_groupName.split('_')[1]}}
+            {{now_groupName}}
           </div>
 
           <div class="cont_mian" @mousewheel="scrollMore">
@@ -394,6 +394,7 @@ export default {
         };
         // console.log(chaobj())
         self.FriendList = chaobj();
+        // console.log(self.FriendList)
         if (self.FriendList[0]) {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
@@ -404,7 +405,7 @@ export default {
           self.getHisMsgs(0);
         }
         self.peo_num = self.groupList.length;
-        console.log(self.FriendList);
+        // console.log(self.FriendList);
       });
 
       self.connection.on("ReceiveGroupMsg", function(m) {
@@ -545,7 +546,7 @@ export default {
 
       sessionStorage.setItem("chaturl", this.url.split("=")[0] + "=");
       // this.connectServer();
-      location.reload();
+      // location.reload();
     },
     //content內容
     getSendMsg(content) {
@@ -623,7 +624,7 @@ export default {
       m.userLang = item.userLang;
       m.userName = item.userName;
       m.content = item.content;
-      item.toLang ? (m.contT = item.toContent) : (m.contT = item.content);
+      item.toContent ? (m.contT = item.toContent) : (m.contT = item.content);
       return m;
     },
     async getHisMsgs(Inde) {
