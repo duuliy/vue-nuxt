@@ -48,7 +48,7 @@ export default {
           "#7E3C77",
           "#873126",
           "#3A9986",
-          "#798ACA",
+          "#798ACA" ,
           "#454BB6"
         ];
         let num = Math.floor(Math.random() * 27) + 1;
