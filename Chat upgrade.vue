@@ -34,7 +34,7 @@
         <div class="chat_cont">
 
           <div class="cont_title" v-if='my_isGuest==false'>
-            <div class="url">
+            <div class="url" >
               {{url}}
             </div>
             <input id='copyURL' type="text" :value="url">
