@@ -52,4 +52,33 @@ axios.interceptors.response.use(response=> {
     return Promise.reject(err);
 });
 
+
+//实际应用
+
+//拦截器
+axios.interceptors.request.use(config=> {
+  // 在发送请求之前做些什么
+  if(process.client){
+      Indicator.open();
+  }
+  return config;
+}, err=> {
+  // 对请求错误做些什么
+  console.log(err)
+  return Promise.reject(err);
+});
+
+
+axios.interceptors.response.use(response=> {
+  // 对响应数据做点什么
+  if(process.client){
+      Indicator.close();
+  }
+  return response;
+}, err=> {
+  // 对响应错误做点什么
+  console.log(err)
+  return Promise.reject(err);
+});
+
 export default axios
