@@ -23,7 +23,7 @@ export default {
       nameIni: "",
       name2: this.name,
       colors: () => {
-        const allcolors = [
+        const allcolors =  [
           "#669AF1",
           "#54CFE1",
           "#50D18D",
