@@ -1,6 +1,6 @@
 <template>
   <div class="app" @click.stop='toggle'>
-    <Header :data_name='my_name'></Header>
+    <Header :data_name='my_name'></Header >
     <div class="chat_warp">
       <div class="chat">
 
