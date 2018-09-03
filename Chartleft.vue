@@ -51,7 +51,7 @@ export default {
 </script>
 
 
-<style type="text/css" scoped lang='less'>
+<style type="text/css" scoped lang='less' >
 .app {
   width: 100%;
   padding: 8px 0;
