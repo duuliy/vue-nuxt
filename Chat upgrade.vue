@@ -1,6 +1,6 @@
 <template>
   <div class="app" @click.stop='toggle'>
-    <Header :data_name='my_name'></Header >
+    <Header :data_name='my_name'></Header>
     <div class="chat_warp">
       <div class="chat">
 
@@ -34,7 +34,7 @@
         <div class="chat_cont">
 
           <div class="cont_title" v-if='my_isGuest==false'>
-            <div class="url" >
+            <div class="url">
               {{url}}
             </div>
             <input id='copyURL' type="text" :value="url">
@@ -292,7 +292,7 @@ export default {
       // eventBus.$emit("inptoggle", false);
     },
     copyUrl() {
-      console.log(this.url);
+      // console.log(this.url);
       if (!this.url) {
         alert("目前没有链接，请您创建群聊");
       } else {
@@ -332,6 +332,7 @@ export default {
           that.groupList = item.users;
           that.peo_num = that.groupList.length;
           that.url = sessionStorage.getItem("chaturl") + item.code;
+          // console.log(sessionStorage.getItem("chaturl"))
           that.now_groupName = item.name;
           that.toGroupId = item.id;
           // $(".cont_mian").empty();
@@ -399,9 +400,8 @@ export default {
           self.groupList = self.FriendList[0].users;
           self.now_groupName = self.FriendList[0].name;
           self.toGroupId = self.FriendList[0].id;
-          // self.url =sessionStorage.getItem("chaturl") + self.FriendList[0].code;
-          self.url =
-            window.location.href + "Chat/Join?c=" + self.FriendList[0].code;
+          self.url =window.location.protocol + "//" + window.location.host + "/C/J?c=" + self.FriendList[0].code;
+          sessionStorage.setItem("chaturl", window.location.protocol + "//" + window.location.host + "/C/J?c=");
           self.getHisMsgs(0);
         }
         self.peo_num = self.groupList.length;
@@ -536,7 +536,7 @@ export default {
 
       this.FriendList.push(group);
       // console.log(this.FriendList);
-
+      
       this.groupList = group.users;
       this.peo_num = this.groupList.length;
       this.url = data.url;
