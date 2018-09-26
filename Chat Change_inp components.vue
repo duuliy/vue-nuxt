@@ -1,15 +1,15 @@
  <template>
-  <div :class="stage==true?'showEdname':'showEdname pi2'" >
+  <div :class="stage==true?'showEdname':'showEdname pi2'">
     <div :class="Offline==true?'header_pic pcc' :'header_pic'" ref='hpic'>
-      {{name.slice(0, 2).toUpperCase()}}
+      {{name.slice(0, 1).toUpperCase()}}
     </div>
     <div class="show" v-if='state==false'>
-      {{name2?name2:name | currency}}
+        {{name | currency}}
     </div>
     <div class="show edit" v-else>
-      <input type="text" maxlength="20" v-model="name2">
+      <input type="text" maxlength="18" v-model="name2" class='autofo' @blur='changeCount' @keyup.enter="editMsg">
     </div>
-    <div class="img" @click.stop='edit' v-if='(stage==false)&&(isGuest==false)'></div>
+    <div class="img" @click.stop='edit' v-if='((stage===false)&&(isGuest===false))||(index===my_id)'></div>
   </div>
 </template>
 
@@ -19,8 +19,9 @@ export default {
   data() {
     return {
       state: false,
+      autofo: false,
       nameIni: "",
-      name2:this.name,
+      name2: this.name,
       colors: () => {
         const allcolors = [
           "#669AF1",
@@ -62,18 +63,21 @@ export default {
   props: {
     name: "",
     stage: "",
-    Offline:"",
-    isGuest:"",
-    index:""
+    Offline: "",
+    isGuest: "",
+    index: "",
+    my_id: "",
+    item: {}
   },
-  created() {
-    },
+  created() {},
   mounted() {
-    console.log(this.name2)
+    // console.log(this.name2)
     // let now_color=this.colors();
     // this.$refs.hpic.style.backgroundColor = now_color;
     // eventBus.$emit("eventBusbacolrr", now_color);
-    
+    // eventBus.$on("inptoggle", val => {
+    //   this.state = val;
+    // });
   },
   filters: {
     currency(value) {
@@ -83,16 +87,35 @@ export default {
     }
   },
   methods: {
-    tpggle() {
-      this.state == false;
+    changeCount() {
+      this.$emit("edit", this.index, this.name2);
+      setTimeout(()=>{
+        this.state = false;
+      },300)
+    },
+    editMsg() {
+      if (this.state == true) {
+        this.edit()
+      }
     },
     edit() {
-      // console.log(this.index)
       this.state = !this.state;
       if (this.state == false) {
         // alert("修改成功!");
-        this.$emit('edit',this.index,this.name2)
+        this.$emit("edit", this.index, this.name2);
+        // this.$nextTick(() => {
+        //   $($(".autofo")[0]).blur();
+        // });
+      } else {
+        this.$nextTick(() => {
+          $($(".autofo")[0]).focus();
+        });
       }
+    }
+  },
+  watch:{
+    name(){
+      this.name2=this.name;
     }
   }
 };
@@ -122,13 +145,13 @@ export default {
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      bottom:-2px;
-      right:-3px;
-      background-color: #CFD6DE;
+      bottom: -2px;
+      right: -3px;
+      background-color: #cfd6de;
     }
-    &.pcc{
-      &:after{
-        background-color: rgba(117,215,76,1);
+    &.pcc {
+      &:after {
+        background-color: rgba(117, 215, 76, 1);
       }
     }
   }
@@ -171,13 +194,13 @@ export default {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      bottom:-2px;
-      right:-3px;
-      background-color: #CFD6DE;
+      bottom: -2px;
+      right: -3px;
+      background-color: #cfd6de;
     }
-    &.pcc{
-      &:after{
-        background-color: rgba(117,215,76,1);
+    &.pcc {
+      &:after {
+        background-color: rgba(117, 215, 76, 1);
       }
     }
   }

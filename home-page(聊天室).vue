@@ -26,7 +26,7 @@
           </div>
 
           <div class="topmid">
-            <div class="mid_url">
+            <div class="mid_url" >
               {{mid_url}}
             </div>
             <p>将该链接复制给对方, 与国外友人畅聊无阻碍</p>
