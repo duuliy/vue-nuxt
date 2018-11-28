@@ -142,22 +142,7 @@ export default {
         "es",
         "pt",
         "ar",
-        "it",
-        "th",
-        "vi",
-        "lo",
-        "fi",
-        "ms",
-        "tr",
-        "id",
-        "he",
-        "pl",
-        "nl",
-        "no",
-        "cs",
-        "da",
-        "bg",
-        "fa"
+        "it"
       ],
       FriendList: [],
 
@@ -217,7 +202,8 @@ export default {
     Tick
   },
   async created() {
-    const res = await this.$axios.get("/api/App/GetLanguages");
+    const res = await this.$axios.get("/api
+    ");
     this.langs = res.data;
     // console.log(this.langs)Abbreviation
     this.langs.map((item, index) => {
@@ -261,7 +247,7 @@ export default {
     receiveM() {
       let that = this;
       this.$axios
-        .post("/api/Chat/Translate", {
+        .post("api", {
           recordId: that.receiveM.id,
           userId: that.my_id,
           fromLang: that.receiveM.userLang,
@@ -362,7 +348,7 @@ export default {
       let self = this;
       this.connection = new signalR.HubConnectionBuilder()
         .configureLogging(signalR.LogLevel.Warning) //达到警告级别
-        .withUrl("/test/testchat", signalR.HttpTransportType.WebSockets) //类型是WebSockets
+        .withUrl("/api", signalR.HttpTransportType.WebSockets) //类型是WebSockets
         .build();
       //设置用户的社交信息
       this.connection.on("SetSocialUserInfo", function(userInfo) {
@@ -516,7 +502,7 @@ export default {
     },
     async createF() {
       let that = this;
-      const res = await this.$axios.get("/api/App/CreateChatGroupAsync");
+      const res = await this.$axios.get("/api");
       let data = res.data;
       // console.log('创建群')
       // console.log(data)
@@ -629,7 +615,7 @@ export default {
     },
     async getHisMsgs(Inde) {
       let that = this;
-      const res = await this.$axios.post("/api/Chat/GetGroupChatMessage", {
+      const res = await this.$axios.post("/api", {
         userId: that.my_id,
         groupId: that.toGroupId,
         pageIndex: Inde,
