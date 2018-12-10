@@ -12,14 +12,14 @@
           <td class="line-num">
             <span>{{item.No}}</span>
           </td>
-          <td class="content-cell src">
+          <td :class="`content-cell src ${item.checked&&'checked'}`" @click="select()">
             <div class="src-warp">
               <div class="src-cont">
                 {{item.srcCont}}
               </div>
             </div>
           </td>
-          <td class="content-cell tgt">
+          <td :class="`content-cell tgt ${item.checked&&'checked'}`" @click="select()">
             <div class="tgt-warp">
               <div class="tgt-cont">
                 {{item.tgtCont}}
@@ -54,12 +54,15 @@ export default {
   naem: "pagealigner",
   data() {
     return {
+      //布局 分页
       listAll: [],
       list: [],
       rowType: 50,
       pages: 1,
       total: "",
-      jumpPage: ""
+      jumpPage: "",
+
+
     }
   },
   created() {
@@ -67,13 +70,14 @@ export default {
       let data = {
         No: i + 1,
         srcCont: "src内容0" + (i + 1),
-        tgtCont: "tgt内容0" + (i + 1)
+        tgtCont: "tgt内容0" + (i + 1),
+        isDisabled: false,
       }
       i > 49 && (data.srcCont = "");
       this.listAll.push(data)
     };
     this.list = this.rowNum(this.rowType);
-    this.total = Math.ceil(this.listAll.length / 50)
+    this.total = Math.ceil(this.listAll.length / 50);
   },
   mounted() {
   },
@@ -86,6 +90,7 @@ export default {
     }
   },
   methods: {
+    //分页
     rowNum(num, initial = 0, listAll = this.listAll) {
       let allList = cloneDeep(listAll)
       return listAll && (allList.slice(initial, num));
@@ -97,7 +102,7 @@ export default {
       return Arr
     },
     rowNumType(item) {
-      let listlength = this.pages * this.rowType
+      let listlength = this.list[this.list.length - 1].No;
       if (item === 1) {
         this.rowType = 50;
       } else if (item === 2) {
@@ -105,7 +110,8 @@ export default {
       } else if (item === 3) {
         this.rowType = 200;
       }
-      this.pages=Math.ceil(listlength/this.rowType)
+      this.pages = Math.ceil(listlength / this.rowType);
+      this.list = this.rowNum(this.rowType * this.pages, this.rowType * (this.pages - 1));
     },
     before() {
       (this.pages > 1) && this.pages--;
@@ -115,6 +121,14 @@ export default {
     },
     jump(Page) {
       this.pages = Page;
+    },
+    //检测是否为禁用状态
+    hasDisabled(el) {
+      return el.classList.contains('isDisabled');
+    },
+    //选中
+    select() {
+
     }
   }
 };
@@ -135,6 +149,18 @@ export default {
     .content-cell {
       width: 50%;
     }
+    .checked {
+      background-color: rgba(214, 234, 243, 1);
+    }
   }
+}
+
+.active {
+  background-color: #d6eaf3;
+}
+//是否禁用
+.isDisabled {
+  cursor: not-allowed;
+  background-color: #f1f1f1;
 }
 </style>
