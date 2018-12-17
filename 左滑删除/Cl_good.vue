@@ -96,7 +96,7 @@
 
 </script>
 
-<style type="text/css" lang="less" scoped>
+<style type="text/css" lang="less" scoped >
     .slider{
         width: 100%;
         height: 105.6px;
