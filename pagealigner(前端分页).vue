@@ -51,6 +51,7 @@ import "@a/scss/reset.scss";
 import { sortBy, cloneDeep } from "lodash";
 
 export default {
+//还要改
   naem: "pagealigner",
   data() {
     return {
