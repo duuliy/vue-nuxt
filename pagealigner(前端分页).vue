@@ -10,7 +10,7 @@
         <!-- <tboday> -->
         <tr v-for='item in list' :key='item.No'>
           <td class="line-num">
-            <span>{{item.No}}</span>
+            <span>{{item.No}}</span >
           </td>
           <td :class="`content-cell src ${item.checked&&'checked'}`" @click="select()">
             <div class="src-warp">
