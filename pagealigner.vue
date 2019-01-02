@@ -705,7 +705,7 @@ export default {
       this.selectChangeEnd(that);
     },
     //以下功能暂时不做了 查找 替换 历史记录 前进 后退
-    //主要功能部分高内聚 低耦合做的不是很好
+    //主要功能部分高内聚 低耦合做的不好
     //查找
     searchData(v) {
       let flag = this.checked ? '' : 'i';
