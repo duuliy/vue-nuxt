@@ -17,9 +17,9 @@ module.exports = {
     host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined  // 运行测试页面的端口
     autoOpenBrowser: false,  //是否自动打开浏览器
-    errorOverlay: true,
-    notifyOnErrors: true,
-    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+    errorOverlay: true,  //  在浏览器是否展示错误蒙层（遮住层）
+    notifyOnErrors: true,  //错误打印
+    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-  //以轮询的方式去检查文件是否改变,避免webpack-dev-servr检查不及时
 
     
     /**
@@ -27,12 +27,12 @@ module.exports = {
      */
 
     // https://webpack.js.org/configuration/devtool/#development
-    devtool: 'cheap-module-eval-source-map',    //
+    devtool: 'cheap-module-eval-source-map',    //报错文件位置插件,仅用于生产环境
 
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
-    cacheBusting: true,   //是否开启上述loader
+    cacheBusting: true,   //是否通过在文件名称后面添加一个查询字符串来创建source map的缓存
 
     cssSourceMap: true       // 是否开启 cssSourceMap
   },
@@ -65,6 +65,6 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report   //一个实用工具,用于分析项目的依赖关系
+    bundleAnalyzerReport: process.env.npm_config_report   //一个实用工具,用于分析项目的依赖关系，若true会在浏览器中生成一份bundler报告
   }
 }

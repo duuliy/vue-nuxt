@@ -7,7 +7,7 @@ const merge = require('webpack-merge')   //通过“通用”配置，我们不�
 const baseWebpackConfig = require('./webpack.base.conf')   //公共配置
 const CopyWebpackPlugin = require('copy-webpack-plugin')   //复制自定义的静态资源文件到dist/static文件夹中
 const HtmlWebpackPlugin = require('html-webpack-plugin')   // 一个可以插入 html 并且创建新的 .html 文件的插件 用于dist里面
-const ExtractTextPlugin = require('extract-text-webpack-plugin')   //将 css 文件分离出来
+const ExtractTextPlugin = require('extract-text-webpack-plugin')   //将 css 文件分离出来,提取css文件到一个独立的文件中去
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')  //一个优化/最小化css资源的插件
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')       //删除没有依赖的并压缩代码
 
@@ -43,7 +43,7 @@ const webpackConfig = merge(baseWebpackConfig, {  //合并 webpack.base.conf.js�
         }
       },
       sourceMap: config.build.productionSourceMap,
-      parallel: true
+      parallel: true  // 使用多进程并行运行和文件缓存来提高构建速度
     }),
     // extract css into its own file
     new ExtractTextPlugin({
@@ -52,11 +52,12 @@ const webpackConfig = merge(baseWebpackConfig, {  //合并 webpack.base.conf.js�
       // Their CSS will instead be inserted dynamically with style-loader when the codesplit chunk has been loaded by webpack.
       // It's currently set to `true` because we are seeing that sourcemaps are included in the codesplit bundle as well when it's `false`, 
       // increasing file size: https://github.com/vuejs-templates/webpack/issues/1110
-      allChunks: true,    //common.js规范的块
+      allChunks: true,    //common.js规范的块  // 从所有额外的 chunk(additional chunk) 提取css内容
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
-    new OptimizeCSSPlugin({        //同上
+    new OptimizeCSSPlugin({        // 使用这个插件压缩css，主要是因为，对于不同组件中相同的css可以剔除一部分
+      //// cssProcessor使用这些选项决定压缩的行为
       cssProcessorOptions: config.build.productionSourceMap
         ? { safe: true, map: { inline: false } }
         : { safe: true }
@@ -81,9 +82,9 @@ const webpackConfig = merge(baseWebpackConfig, {  //合并 webpack.base.conf.js�
       chunksSortMode: 'dependency'          //资源按照依赖关系去插入
     }),
     // keep module.id stable when vendor modules does not change
-    new webpack.HashedModuleIdsPlugin(),    //哈希化
+    new webpack.HashedModuleIdsPlugin(),    // 根据模块的相对路径生成一个四位数的hash作为模块id
     // enable scope hoisting
-    new webpack.optimize.ModuleConcatenationPlugin(),       
+    new webpack.optimize.ModuleConcatenationPlugin(),  // 放到一个闭包函数里面去，通过减少闭包函数数量从而加快JS的执行速度。     
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({        //将引用的库文件拆出来打包到一个[name].js文件中  vendor
       name: 'vendor',
@@ -98,6 +99,11 @@ const webpackConfig = merge(baseWebpackConfig, {  //合并 webpack.base.conf.js�
         )
       }
     }),
+
+    // 为了将项目中的第三方依赖代码抽离出来，官方文档上推荐使用这个插件，当我们在项目里实际使用之后，
+    // 发现一旦更改了 app.js 内的代码，vendor.js 的 hash 也会改变，那么下次上线时，
+    // 用户仍然需要重新下载 vendor.js 与 app.js——这样就失去了缓存的意义了。所以第二次new就是解决这个问题的
+    
     // extract webpack runtime and module manifest to its own file in order to
     // prevent vendor hash from being updated whenever app bundle is updated
     new webpack.optimize.CommonsChunkPlugin({           //把webpack的runtime和manifest这些webpack管理所有模块交互的代码打包到[name].js文件中,防止build之后vendor的hash值被更新

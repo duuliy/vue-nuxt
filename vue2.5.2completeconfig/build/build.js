@@ -3,7 +3,7 @@ require('./check-versions')()              // 检查 Node 和 npm 版本立即�
 
 process.env.NODE_ENV = 'production'
 
-const ora = require('ora')       //引入ora,可以实现loading效果
+const ora = require('ora')       //引入ora,可以实现loading效果  // 终端的spinner
 const rm = require('rimraf')          //提供node版本的UNIX的rm -rf命令
 const path = require('path')
 const chalk = require('chalk')         //控制台高亮显示的插件
@@ -19,7 +19,7 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
   webpack(webpackConfig, (err, stats) => {
     spinner.stop()
     if (err) throw err
-    process.stdout.write(stats.toString({ //标准输出流
+    process.stdout.write(stats.toString({ //标准'输出'流  stdin输入
       colors: true,
       modules: false,
       children: false, //如果您正在使用TS加载程序，将其设置为true将在生成过程中显示TysScript错误。

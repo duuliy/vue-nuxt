@@ -1,7 +1,7 @@
 'use strict'
 const chalk = require('chalk')     // 用于在控制台输出高亮字体的插件
 const semver = require('semver')     // 语义化版本检查插件
-const packageConfig = require('../package.json')   // 引入package.json                                           //主要是命令行的配置
+const packageConfig = require('../package.json')   // 引入package.json                     //主要是命令行的配置
 const shell = require('shelljs')        //引入shelljs  报告工具或测试的错误等
 
 function exec (cmd) {            // 开辟子进程执行指令cmd并返回结果
@@ -12,7 +12,7 @@ const versionRequirements = [           // node和npm版本需求
   {
     name: 'node',
     currentVersion: semver.clean(process.version),
-    versionRequirement: packageConfig.engines.node
+    versionRequirement: packageConfig.engines.node  //"engines": {"node": ">= 6.0.0",
   }
 ]
 
@@ -31,6 +31,7 @@ module.exports = function () {
     const mod = versionRequirements[i]
 
     if (!semver.satisfies(mod.currentVersion, mod.versionRequirement)) {
+      // 如果现有的npm或者node的版本比定义的版本低，则生成一段警告
       warnings.push(mod.name + ': ' +
         chalk.red(mod.currentVersion) + ' should be ' +
         chalk.green(mod.versionRequirement)

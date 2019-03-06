@@ -46,8 +46,8 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
-          limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          limit: 10000,  // 文件的大小小于10000字节(10kb)的时候会返回一个dataUrl
+          name: utils.assetsPath('img/[name].[hash:7].[ext]')  // 生成的文件的保存路径和后缀名称
         }
       },
       {
@@ -60,7 +60,7 @@ module.exports = {
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'url-loader',
+        loader: 'url-loader',     
         options: {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
