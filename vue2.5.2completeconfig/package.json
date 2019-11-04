@@ -96,7 +96,7 @@
         //这个包可以用来预编译VUE模板到渲染函数，以避免运行时编译开销和CSP限制
         "webpack": "^3.6.0",
         //打包工具
-        "webpack-bundle-analyzer": "^2.9.0",
+        "webpack-bundle-analyzer": "^3.6.0",
         //可视化webpack输出文件的大小
         "webpack-dev-server": "^2.9.1",
         //提供一个提供实时重载的开发服务器
