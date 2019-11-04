@@ -4,16 +4,17 @@ require('./check-versions')()              // 检查 Node 和 npm 版本立即�
 process.env.NODE_ENV = 'production'
 
 const ora = require('ora')       //引入ora,可以实现loading效果  // 终端的spinner
-const rm = require('rimraf')          //提供node版本的UNIX的rm -rf命令
+const rm = require('rimraf')          //提供node版本的UNIX的rm -rf命令 删除文件dist用的
 const path = require('path')
-const chalk = require('chalk')         //控制台高亮显示的插件
+const chalk = require('chalk')         //控制台高亮显示的插件 彩色
 const webpack = require('webpack')
 const config = require('../config')
-const webpackConfig = require('./webpack.prod.conf')
+const webpackConfig = require('./webpack.prod.conf') 
 
 const spinner = ora('building for production...')        // 使用 ora 打印出 loading + log
 spinner.start()       //加载时显示的文本
 
+//先删除dist文件再生成新文件，因为有时候会使用hash来命名，删除整个文件可避免冗余
 rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
   if (err) throw err       //如果回调函数出现错误就抛出异常
   webpack(webpackConfig, (err, stats) => {

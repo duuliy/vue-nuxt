@@ -9,7 +9,7 @@ module.exports = {
   dev: {
 
     // Paths
-    assetsSubDirectory: 'static',     // 编译输出的二级目录
+    assetsSubDirectory: 'static',     // 编译输出的二级目录,一般存放css,js,image等文件
     assetsPublicPath: '/',                   // 编译发布上线路径的根目录，可配置为资源服务器域名或 CDN 域名
     proxyTable: {},          // 需要 proxyTable 代理的接口（可跨域
 
@@ -17,8 +17,8 @@ module.exports = {
     host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined  // 运行测试页面的端口
     autoOpenBrowser: false,  //是否自动打开浏览器
-    errorOverlay: true,  //  在浏览器是否展示错误蒙层（遮住层）
-    notifyOnErrors: true,  //错误打印
+    errorOverlay: true,  //  在浏览器是否展示错误蒙层（遮罩层）
+    notifyOnErrors: true,  //错误打印 跨平台错误提示
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-  //以轮询的方式去检查文件是否改变,避免webpack-dev-servr检查不及时
 
     
@@ -27,14 +27,15 @@ module.exports = {
      */
 
     // https://webpack.js.org/configuration/devtool/#development
-    devtool: 'cheap-module-eval-source-map',    //报错文件位置插件,仅用于生产环境
+    devtool: 'cheap-module-eval-source-map',    //报错文件位置插件,不可在生产环境中使用
 
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
-    cacheBusting: true,   //是否通过在文件名称后面添加一个查询字符串来创建source map的缓存
+    cacheBusting: true,   //是否通过在文件名称后面添加一个查询字符串来创建source map的缓存，使缓存失效
 
     cssSourceMap: true       // 是否开启 cssSourceMap
+    //代码压缩后进行调bug定位将非常困难，于是引入sourcemap记录压缩前后的位置信息记录，当产生错误时直接定位到未压缩前的位置，将大大的方便我们调试
   },
 //生产环境
   build: {

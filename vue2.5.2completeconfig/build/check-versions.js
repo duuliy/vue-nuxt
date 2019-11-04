@@ -11,15 +11,15 @@ function exec (cmd) {            // 开辟子进程执行指令cmd并返回结�
 const versionRequirements = [           // node和npm版本需求
   {
     name: 'node',
-    currentVersion: semver.clean(process.version),
-    versionRequirement: packageConfig.engines.node  //"engines": {"node": ">= 6.0.0",
+    currentVersion: semver.clean(process.version), //使用semver格式化版本
+    versionRequirement: packageConfig.engines.node  //"engines": {"node": ">= 6.0.0", 获取package.json中设置的node版本
   }
 ]
 
 if (shell.which('npm')) {       // 开辟子进程执行指令npm并返回结果
   versionRequirements.push({
     name: 'npm',
-    currentVersion: exec('npm --version'),
+    currentVersion: exec('npm --version'), // 自动调用npm --version命令，并且把参数返回给exec函数，从而获取纯净的版本号
     versionRequirement: packageConfig.engines.npm
   })
 }

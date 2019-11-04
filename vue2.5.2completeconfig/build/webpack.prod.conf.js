@@ -79,7 +79,7 @@ const webpackConfig = merge(baseWebpackConfig, {  //合并 webpack.base.conf.js�
         // https://github.com/kangax/html-minifier#options-quick-reference
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-      chunksSortMode: 'dependency'          //资源按照依赖关系去插入
+      chunksSortMode: 'dependency'          //资源按照依赖关系去插入 模块排序，按照我们需要的顺序排序
     }),
     // keep module.id stable when vendor modules does not change
     new webpack.HashedModuleIdsPlugin(),    // 根据模块的相对路径生成一个四位数的hash作为模块id

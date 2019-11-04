@@ -46,7 +46,7 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
-          limit: 10000,  // 文件的大小小于10000字节(10kb)的时候会返回一个dataUrl
+          limit: 10000,  // 文件的大小小于10000字节(10kb)的时候会返回一个base64
           name: utils.assetsPath('img/[name].[hash:7].[ext]')  // 生成的文件的保存路径和后缀名称
         }
       },
@@ -68,7 +68,7 @@ module.exports = {
       }
     ]
   },
-  node: {    //node里面的配置，估计是热更有关
+  node: {    //以下选项是Node.js全局变量或模块，这里主要是防止webpack注入一些Node.js的东西到vue中
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).
     setImmediate: false,
