@@ -41,7 +41,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {       // 将我们 webpack.d
     proxy: config.dev.proxyTable,       //代理
     quiet: true, // necessary for FriendlyErrorsPlugin    //控制台是否禁止打印警告和错误,若用FriendlyErrorsPlugin 此处为 true
     watchOptions: {    //监听文件系统检测改动
-      poll: config.dev.poll,
+      poll: config.dev.poll, //多长时间检查一次
     }
   },
   plugins: [
